@@ -9,6 +9,7 @@
 
 #include <iosfwd>
 #include <string>
+#include <stack>
 
 namespace xml {
 
@@ -61,6 +62,19 @@ namespace xml {
 	ostream& operator<< (const elem_end& e);
 	ostream& operator<< (const attr& attr);
 	ostream& operator<< (const char* val);
+	ostream& operator<< (const std::string& val);
+    private:
+	ostream& content(const char* a, const char* b);
+	struct elem {
+	    explicit elem(const std::string& name)
+		: name(name),
+		  has_content(false)
+	    {}
+	    std::string name;
+	    bool has_content;
+	};
+	std::stack<elem> stack;
+	std::ostream& os;
     };
 }
 

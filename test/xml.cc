@@ -33,6 +33,16 @@ namespace stream {
 	assert_xml(ss, "<foo>bar</foo>");
     }
 
+    void string(TC)
+    {
+	std::ostringstream ss;
+	xml::ostream xs(ss);
+	const std::string bar = "bar";
+	xs << elem("foo") << bar << end;
+
+	assert_xml(ss, "<foo>bar</foo>");
+    }
+
     void empty(TC)
     {
 	std::ostringstream ss;
@@ -56,14 +66,50 @@ namespace stream {
 		   "</foo>");
     }
 
-    void flat(TC)
-    {
-	std::ostringstream ss;
-	xml::ostream xs(ss);
-	xs << elem("foo");
-	for(unsigned i=0; i<1000; i++) {
-	    xs << elem("bar") << end;
+    namespace huge {
+
+	void flat(TC)
+	{
+	    std::ostringstream ss;
+	    xml::ostream xs(ss);
+	    xs << elem("foo");
+	    for(unsigned i=0; i<1000; i++) {
+		xs << elem("bar") << end;
+	    }
+	    xs << end;
 	}
-	xs << end;
+
+	void nested(TC)
+	{
+	    std::ostringstream ss;
+	    xml::ostream xs(ss);
+	    xs << elem("foo");
+	    for(unsigned i=0; i<1000; i++) {
+		xs << elem("bar");
+	    }
+	    for(unsigned i=0; i<1000; i++) {
+		xs << end;
+	    }
+	    xs << end;
+	}
+    }
+
+    namespace quoting {
+
+	void ampersand(TC)
+	{
+	    std::ostringstream ss;
+	    xml::ostream xs(ss);
+	    xs << elem("foo") << " a&b " << end;
+	    assert_xml(ss, "<foo> a&amp;b </foo>");
+	}
+
+	void lt_gt(TC)
+	{
+	    std::ostringstream ss;
+	    xml::ostream xs(ss);
+	    xs << elem("foo") << " <> " << end;
+	    assert_xml(ss, "<foo> &lt;&gt; </foo>");
+	}
     }
 }
