@@ -66,6 +66,39 @@ namespace stream {
 		   "</foo>");
     }
 
+    void attribute_quoting(TC)
+    {
+	std::ostringstream ss;
+	xml::ostream xs(ss);
+	xs << elem("foo") << attr("bar", "don't") << end;
+
+	assert_xml(ss,
+		   "<foo bar='don&apos;t'/>");
+    }
+
+    namespace indent {
+
+	void simple(TC)
+	{
+	    std::ostringstream ss;
+	    xml::ostream xs(ss, "..");
+	    xs << elem("foo")
+	       <<   "bar"
+	       <<   elem("bat") << "fred" << end
+	       <<   elem("barney") << end
+	       << end;
+
+	    assert_xml(ss,
+		       "<foo>\n"
+		       "..bar\n"
+		       "..<bat>\n"
+		       "....fred\n"
+		       "..</bat>\n"
+		       "..<barney/>\n"
+		       "</foo>");
+	}
+    }
+
     namespace huge {
 
 	void flat(TC)

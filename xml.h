@@ -38,7 +38,8 @@ namespace xml {
      * - The XML declaration.
      * - Closing the elements with a </foo> or a <foo/>.
      * - Escaping & to &amp; and so on.
-     * - Indenting for readability, if you ask for it.
+     * - Indenting for readability, if you ask for it
+     *   (oops, not implemented yet!)
      *
      * Otherwise it provides a flattened view of the document.
      * To render an element, you feed it, in this order, with:
@@ -57,7 +58,7 @@ namespace xml {
      */
     class ostream {
     public:
-	explicit ostream(std::ostream& os);
+	ostream(std::ostream& os, const std::string& indent = "");
 	ostream& operator<< (const elem& e);
 	ostream& operator<< (const elem_end& e);
 	ostream& operator<< (const attr& attr);

@@ -35,7 +35,8 @@ namespace {
 }
 
 
-ostream::ostream(std::ostream& os)
+ostream::ostream(std::ostream& os,
+		 const std::string&)
     : os(os)
 {
     os << "<?xml version='1.0' encoding='UTF-8'?>\n";
