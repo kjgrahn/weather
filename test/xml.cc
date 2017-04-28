@@ -125,6 +125,22 @@ namespace stream {
 	    }
 	    xs << end;
 	}
+
+	void gigantic(TC)
+	{
+	    NullBuf nullbuf;
+	    std::ostream os(nullbuf);
+	    xml::ostream xs(os);
+	    xs << elem("base");
+	    for(unsigned i=0; i<1e6; i++) {
+		xs << "intro" << elem("elem");
+	    }
+	    xs << "innermost";
+	    for(unsigned i=0; i<1e6; i++) {
+		xs << end << "postscript";
+	    }
+	    xs << end;
+	}
     }
 
     namespace quoting {
