@@ -1,0 +1,8 @@
+<request>
+  <login authenticationkey="SomeAuthenticationKey" />
+  <query objecttype="SomeObjectType" limit="10">
+  <filter>
+    <eq name="SomeDataField" value="2" />
+  </filter>
+  </query>
+</request>
