@@ -1,0 +1,104 @@
+.ss 12 0
+.de BP
+.IP \\fB\\$*
+..
+.
+.TH weather 5 "SEP 2018" Weather "User Manuals"
+.
+.SH "NAME"
+weather \- weather observations file format
+.
+.SH "DESCRIPTION"
+.
+A weather observation, or meteorology observation, or weather sample file
+is a set of samples from a single place, at different times.
+The sampled data includes e.g. temperature.
+.PP
+In reality, the file format is designed for the data provided by
+.IR Trafikverket ,
+who have weather stations along the roads in Sweden,
+and who allow public access to the data.
+.
+.
+.SH "BASIC SYNTAX"
+.
+The file format is a line-oriented text file format.
+Allowed text encodings are
+.BR UTF-8 ,
+.B "ISO\ 8859-1"
+(Latin-1), and
+.BR ASCII .
+.PP
+Blank lines and comment lines, introduced by a
+.IR # ,
+are ignored.
+All other lines are fields, on the form
+.IP
+.B "name: value"
+.PP
+Whitespace is allowed, except before the field name.
+.PP
+The actual content is a series of timestamped
+.BR samples ,
+from a single place.  A sample starts with a
+.B date
+field and continues to the next sample.
+Samples need not be ordered by time (although keeping them
+ordered is good policy).
+No fields are mandatory, and the fields may vary between samples.
+.
+.SH "FIELDS"
+.
+.SS "Time"
+.
+.BP date
+Sample time, in ISO format. Timezone?
+.
+.SS "Temperature"
+.
+.BP temperature.road
+Road temperature, in degrees centigrade.
+.
+.BP temperature.air
+Air temperature.
+.
+.SS "Wind"
+.
+.BP wind.direction
+Wind direction, in degrees.  270 means wind from the west.
+.
+.BP wind.force
+Wind force, in meters/second.
+Mean value over ten minutes.
+.
+.BP wind.force.max
+Max wind force during the past 30 minutes.
+.
+.SS "Other"
+.
+.BP humidity
+Relative humidity, in percent.
+.
+.BP rain
+.
+.
+.SH "EXAMPLE"
+.IP
+.ft CW
+.nf
+date: 2018-09-27T00:30:01
+temperature.air : 10.9
+temperature.road:  9.3
+wind.force      :  7.4
+wind.force.max  : 12.6
+wind.direction  :  270
+humidity        : 78.8
+.fi
+.
+.SH "AUTHOR"
+J\(:orgen Grahn \fI\[fo]grahn+src@snipabacken.se\[fc]
+.
+.
+.SH "SEE ALSO"
+.
+.IR \[fo]https://api.trafikinfo.trafikverket.se/\[fc] .
