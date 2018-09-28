@@ -1,0 +1,63 @@
+.ss 12 0
+.de BP
+.IP \\fB\\$*
+..
+.
+.TH weather 1 "SEP 2018" Weather "User Manuals"
+.SH "NAME"
+weather \- download Trafikverket weather station data
+.
+.SH "SYNOPSIS"
+.B weather
+.B \-k
+.I key
+.I station
+.RI [ file ]
+.br
+.B weather --help
+.
+.SH "DESCRIPTION"
+.
+.B weather
+downloads data from one of Trafikverket's weather stations,
+the one identified as
+.IR station ,
+and prints it to standard output, or appends it to
+.IR file ,
+in the format specified by
+.BR weather (5).
+The data is one or more samples in time.
+More than one because the response typically contains five samples
+spaced ten minutes apart.
+.PP
+To use it, you need to register with Trafikverket and generate an
+API key.
+You also need to know the station identifier, like
+.I SE_STA_VVIS1433
+(a station in M\(:olndal).
+.
+.SH "OPTIONS"
+.
+.BP \-k\ \fIkey
+The API key.
+.
+.BP --help
+Print a brief help text and exit.
+.SH "EXIT CODE"
+Non-zero if no correct samples were collected and saved.
+.
+.SH "NOTES"
+.
+The full response from the server is not preserved, only the data
+which maps to
+.BR weather (5).
+.
+.SH "AUTHOR"
+.
+J\(:orgen Grahn
+.IR \[fo]grahn+src@snipabacken.se\[fc] .
+.
+.SH "SEE ALSO"
+.
+.BR weather (5),
+.IR \[fo]https://api.trafikinfo.trafikverket.se/\[fc] .
