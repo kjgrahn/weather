@@ -1,3 +1,4 @@
+weather
 *.o
 lib*.a
 dep/
