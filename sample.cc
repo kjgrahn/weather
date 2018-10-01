@@ -26,6 +26,8 @@
  */
 #include "sample.h"
 
+#include <unordered_set>
+
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
 
@@ -89,6 +91,14 @@ std::vector<Sample> parse(const char* name)
     xml::Doc* doc = xmlParseFile(name);
     xml::xpath::Ctx* ctx = xmlXPathNewContext(doc);
 
+    std::unordered_set<std::string> times;
+    auto seen = [&times] (const std::string& t) {
+		    auto it = times.find(t);
+		    if(it!=end(times)) return true;
+		    times.insert(t);
+		    return false;
+		};
+
     xml::xpath::Obj* const match = eval(ctx, "/RESPONSE/RESULT/WeatherStation/*[MeasureTime]");
     for(xml::Node* measurement : nodes(match)) {
 
@@ -107,6 +117,8 @@ std::vector<Sample> parse(const char* name)
 		   };
 
 	sample.time = get("MeasureTime");
+	if(seen(sample.time)) continue;
+
 	set("temperature.road", "Road/Temp");
 	set("temperature.air",  "Air/Temp");
 	set("humidity",         "Air/RelativeHumidity");
