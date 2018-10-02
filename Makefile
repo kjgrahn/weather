@@ -17,6 +17,21 @@ libweather.a: sample.o
 foo: post
 	curl -LO --data-binary @post 'http://api.trafikinfo.trafikverket.se/v1.3/data.xml'
 
+.PHONY: tags TAGS
+tags: TAGS
+TAGS:
+	etags *.{h,cc}
+
+.PHONY: clean
+clean:
+	$(RM) weather
+	$(RM) *.o lib*.a
+	$(RM) *.pyc
+	$(RM) -r dep
+
+love:
+	@echo "not war?"
+
 # DO NOT DELETE
 
 $(shell mkdir -p dep)
