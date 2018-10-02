@@ -11,6 +11,7 @@ weather: weather.o libweather.a
 	$(CXX) $(CXXFLAGS) -o $@ $< -L. -lweather -lxml2
 
 libweather.a: sample.o
+libweather.a: post.o
 	$(AR) -r $@ $^
 
 .PHONY: foo
