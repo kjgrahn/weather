@@ -31,6 +31,9 @@
 #include <cstring>
 
 #include <getopt.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
 #include "sample.h"
 #include "post.h"
@@ -38,10 +41,32 @@
 
 namespace {
 
+    /**
+     * getaddrinfo() hints suitable for this, a HTTP client.
+     */
+    addrinfo tcp_client()
+    {
+	addrinfo a = {};
+	a.ai_flags = AI_ADDRCONFIG;
+	a.ai_family = AF_UNSPEC;
+	a.ai_socktype = SOCK_STREAM;
+	return a;
+    }
+
     int weather(std::ostream& os,
 		const std::string& key,
 		const std::string& station)
     {
+	const std::string host = "api.trafikinfo.trafikverket.se";
+
+	const addrinfo hints = tcp_client();
+	addrinfo* ais;
+	const int err = getaddrinfo(host.c_str(), "http", &hints, &ais);
+	if(err) {
+	    std::cerr << "error: '" << host << "': " << gai_strerror(err) << '\n';
+	    return 1;
+	}
+
 	os << "foo\n";
 	return 0;
     }
