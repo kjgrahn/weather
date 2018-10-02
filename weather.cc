@@ -26,23 +26,97 @@
  */
 #include <string>
 #include <iostream>
+#include <fstream>
+#include <vector>
 #include <cstring>
-#include <memory>
 
-#include <stdio.h>
 #include <getopt.h>
 
 #include "sample.h"
+#include "post.h"
 
 
-int main(int, char **)
-{
-    for (const auto& sample: parse("data.brt")) {
-	std::cout << sample.time << '\n';
-	for (const auto& val: sample.data) {
-	    std::cout << val.first << ": " << val.second << '\n';
-	}
-	std::cout << "---\n";
+namespace {
+
+    int weather(std::ostream& os,
+		const std::string& key,
+		const std::string& station)
+    {
+	os << "foo\n";
+	return 0;
     }
-    return 0;
+
+    int weather(const std::string& key,
+		const std::string& station,
+		const std::string& file)
+    {
+	if(file.empty()) return weather(std::cout, key, station);
+	std::ofstream os(file, std::ios::app);
+	if(!os) {
+	    std::cerr << "cannot open '" << file << "' for writing: "
+		      << std::strerror(errno) << '\n';
+	    return 1;
+	}
+	return weather(os, key, station);
+    }
+}
+
+
+int main(int argc, char ** argv)
+{
+    const std::string prog = argv[0];
+    const std::string usage = std::string("usage: ")
+	+ prog + " -k key station\n"
+	"       "
+	+ prog + " -k key station file\n"
+	"       "
+	+ prog + " --help";
+    const char optstring[] = "k:";
+    const struct option long_options[] = {
+	{"help", 0, 0, 'H'},
+	{0, 0, 0, 0}
+    };
+
+    std::cin.sync_with_stdio(false);
+    std::cout.sync_with_stdio(false);
+
+    std::string key;
+
+    int ch;
+    while((ch = getopt_long(argc, argv,
+			    optstring,
+			    &long_options[0], 0)) != -1) {
+	switch(ch) {
+	case 'k':
+	    key = optarg;
+	    break;
+	case 'H':
+	    std::cout << usage << '\n';
+	    return 0;
+	    break;
+	case ':':
+	case '?':
+	    std::cerr << usage << '\n';
+	    return 1;
+	    break;
+	default:
+	    break;
+	}
+    }
+
+    const std::vector<const char*> args {argv+optind, argv+argc};
+    std::string station;
+    std::string file;
+    switch(args.size()) {
+    case 0:
+    default:
+	std::cerr << usage << '\n';
+	return 1;
+    case 2:
+	file = args[1];
+    case 1:
+	station = args[0];
+    }
+
+    return weather(key, station, file);
 }
