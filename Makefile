@@ -13,10 +13,19 @@ weather: weather.o libweather.a
 libweather.a: sample.o
 	$(AR) -r $@ $^
 
-weather.o: sample.h
-sample.o: sample.h
-
-
 .PHONY: foo
 foo: post
 	curl -LO --data-binary @post 'http://api.trafikinfo.trafikverket.se/v1.3/data.xml'
+
+# DO NOT DELETE
+
+$(shell mkdir -p dep)
+DEPFLAGS=-MT $@ -MMD -MP -MF dep/$*.Td
+COMPILE.cc=$(CXX) $(DEPFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
+
+%.o: %.cc
+	$(COMPILE.cc) $(OUTPUT_OPTION) $<
+	mv dep/$*.{Td,d}
+
+dep/%.d: ;
+-include dep/*.d
