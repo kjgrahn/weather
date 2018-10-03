@@ -31,6 +31,7 @@
 #include <cstring>
 
 #include <getopt.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
@@ -53,6 +54,41 @@ namespace {
 	return a;
     }
 
+    timeval tv_of(double seconds)
+    {
+	time_t s = seconds;
+	return {s, (seconds-s)*1e6 };
+    }
+
+    /**
+     * Set the socket(7) SO_RCVTIMEO and SO_SNDTIMEO.
+     */
+    void timeout(int fd, double seconds)
+    {
+	const timeval tv = tv_of(seconds);
+	setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof tv);
+	setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof tv);
+    }
+
+    /**
+     * From one or more struct addrinfo, try to socket() and
+     * connect().  Returns the fd, or sets errno and returns -1.
+     */
+    int connect_one(addrinfo* ais)
+    {
+	for(addrinfo* p=ais; p; p=p->ai_next) {
+	    int fd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+	    if(fd==-1) continue;
+
+	    timeout(fd, 20.0);
+
+	    int err = connect(fd, p->ai_addr, p->ai_addrlen);
+	    if(!err) return fd;
+	    close(fd);
+	}
+	return -1;
+    }
+
     int weather(std::ostream& os,
 		const std::string& key,
 		const std::string& station)
@@ -64,6 +100,14 @@ namespace {
 	const int err = getaddrinfo(host.c_str(), "http", &hints, &ais);
 	if(err) {
 	    std::cerr << "error: '" << host << "': " << gai_strerror(err) << '\n';
+	    return 1;
+	}
+
+	const int fd = connect_one(ais);
+	freeaddrinfo(ais);
+	if(fd==-1) {
+	    std::cerr << "error: '" << host << "': cannot connect: "
+		      << std::strerror(errno) << '\n';
 	    return 1;
 	}
 
