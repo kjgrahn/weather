@@ -29,6 +29,7 @@
 #include <fstream>
 #include <vector>
 #include <cstring>
+#include <cassert>
 
 #include <getopt.h>
 #include <unistd.h>
@@ -93,25 +94,35 @@ namespace {
 		const std::string& key,
 		const std::string& station)
     {
+	auto& cerr = std::cerr;
 	const std::string host = "api.trafikinfo.trafikverket.se";
 
 	const addrinfo hints = tcp_client();
 	addrinfo* ais;
 	const int err = getaddrinfo(host.c_str(), "http", &hints, &ais);
 	if(err) {
-	    std::cerr << "error: '" << host << "': " << gai_strerror(err) << '\n';
+	    cerr << "error: '" << host << "': " << gai_strerror(err) << '\n';
 	    return 1;
 	}
 
 	const int fd = connect_one(ais);
 	freeaddrinfo(ais);
 	if(fd==-1) {
-	    std::cerr << "error: '" << host << "': cannot connect: "
-		      << std::strerror(errno) << '\n';
+	    cerr << "error: '" << host << "': cannot connect: "
+		 << std::strerror(errno) << '\n';
 	    return 1;
 	}
 
-	os << "foo\n";
+	const auto req = post(host, key, station);
+	const ssize_t res = write(fd, req.data(), req.size());
+	if(res==-1) {
+	    cerr << "error: request failed: "
+		 << std::strerror(errno) << '\n';
+	    return 1;
+	}
+	assert(res==req.size());
+	shutdown(fd, SHUT_WR);
+
 	return 0;
     }
 
