@@ -12,6 +12,7 @@ weather: weather.o libweather.a
 
 libweather.a: sample.o
 libweather.a: post.o
+libweather.a: socket.o
 	$(AR) -r $@ $^
 
 .PHONY: foo

@@ -39,6 +39,7 @@
 
 #include "sample.h"
 #include "post.h"
+#include "socket.h"
 
 
 namespace {
@@ -105,23 +106,22 @@ namespace {
 	    return 1;
 	}
 
-	const int fd = connect_one(ais);
+	Socket fd {connect_one(ais)};
 	freeaddrinfo(ais);
-	if(fd==-1) {
+	if(fd.invalid()) {
 	    cerr << "error: '" << host << "': cannot connect: "
-		 << std::strerror(errno) << '\n';
+		 << fd.error() << '\n';
 	    return 1;
 	}
 
 	const auto req = post(host, key, station);
-	const ssize_t res = write(fd, req.data(), req.size());
-	if(res==-1) {
-	    cerr << "error: request failed: "
-		 << std::strerror(errno) << '\n';
+
+	if(!fd.write(req.data(), req.size())) {
+	    cerr << "error: request failed: " << fd.error() << '\n';
 	    return 1;
 	}
-	assert(res==req.size());
-	shutdown(fd, SHUT_WR);
+
+	fd.shutdown_write();
 
 	return 0;
     }
