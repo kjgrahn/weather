@@ -121,8 +121,6 @@ namespace {
 	    return 1;
 	}
 
-	fd.shutdown_write();
-
 	auto s = fd.read();
 	if(s.empty()) {
 	    cerr << "error: read failure: " << fd.error() << '\n';

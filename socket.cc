@@ -61,11 +61,6 @@ bool Socket::write(const void* buf, size_t count)
     return true;
 }
 
-void Socket::shutdown_write()
-{
-    shutdown(fd, SHUT_WR);
-}
-
 /**
  * Read all data from the socket, blocking.  The following can happen:
  * - reads N octets successfully and returns them as a non-empty string
