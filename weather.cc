@@ -123,6 +123,14 @@ namespace {
 
 	fd.shutdown_write();
 
+	auto s = fd.read();
+	if(s.empty()) {
+	    cerr << "error: read failure: " << fd.error() << '\n';
+	    return 1;
+	}
+
+	os << s;
+
 	return 0;
     }
 

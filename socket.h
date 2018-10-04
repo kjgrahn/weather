@@ -46,6 +46,8 @@ public:
     bool write(const void* buf, size_t count);
     void shutdown_write();
 
+    std::string read();
+
 private:
     const int fd;
     int err;

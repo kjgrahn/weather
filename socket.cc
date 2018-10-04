@@ -65,3 +65,40 @@ void Socket::shutdown_write()
 {
     shutdown(fd, SHUT_WR);
 }
+
+/**
+ * Read all data from the socket, blocking.  The following can happen:
+ * - reads N octets successfully and returns them as a non-empty string
+ * - encounters an I/O error, returns "" and error() contains error text
+ * - reads unreasonably much data, aborts the reading and returns ""
+ * - reads EOF immediately and returns ""
+ *
+ * The last two would look funny if they happened, wrt diagnostics.
+ */
+std::string Socket::read()
+{
+    const size_t LIMIT = 100e3;
+    std::string acc;
+
+    while(1) {
+	char buf[10000];
+	const ssize_t res = ::read(fd, buf, sizeof buf);
+	if(res==-1) {
+	    err = errno;
+	    acc.clear();
+	    break;
+	}
+	else if(res==0) {
+	    break;
+	}
+	else {
+	    acc.append(buf, buf + res);
+	}
+	if(acc.size() > LIMIT) {
+	    acc.clear();
+	    break;
+	}
+    }
+
+    return acc;
+}
