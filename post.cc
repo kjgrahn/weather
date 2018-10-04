@@ -31,7 +31,7 @@
 
 /**
  * Form a post request suitable for asking for weather data, something
- * like:
+ * like this.  Also see RFC 2616.
  *
  *     POST /v1.3/data.xml HTTP/1.1
  *     Host: localhost:4000
@@ -75,6 +75,7 @@ std::string post(const std::string& host,
 	<< "Accept: */*" << crlf
 	<< "Content-Type: application/xml" << crlf
 	<< "Content-Length: " << bodys.size() << crlf
+	<< "Connection: close" << crlf
 	<< crlf
 	<< body.str();
 
