@@ -26,6 +26,7 @@
  */
 #include "post.h"
 
+#include <algorithm>
 #include <sstream>
 
 
@@ -50,9 +51,9 @@
  *       </query>
  *     </request>
  */
-std::string post(const std::string& host,
-		 const std::string& key,
-		 const std::string& station)
+std::string post::req(const std::string& host,
+		      const std::string& key,
+		      const std::string& station)
 {
     std::ostringstream body;
     body << "<?xml version='1.0' encoding='utf-8' ?>\n"
@@ -80,4 +81,40 @@ std::string post(const std::string& host,
 	<< body.str();
 
     return req.str();
+}
+
+namespace {
+    std::string::const_iterator crlf(const std::string& s)
+    {
+	static const char needle[] = "\r\n";
+	return std::search(begin(s), end(s),
+			   needle, needle + 2);
+    }
+
+    std::string::const_iterator crlfcrlf(const std::string& s)
+    {
+	static const char needle[] = "\r\n\r\n";
+	auto i = std::search(begin(s), end(s),
+			     needle, needle + 4);
+	if(i!=end(s)) i += 4;
+	return i;
+    }
+
+    bool starts_with(const std::string& haystack,
+		     const std::string& needle)
+    {
+	auto i = std::search(begin(haystack), end(haystack),
+			     begin(needle), end(needle));
+	return i==begin(haystack);
+    }
+}
+
+post::Response::Response(const std::string& buf)
+    : status_line {begin(buf), crlf(buf)},
+      body {crlfcrlf(buf), end(buf)}
+{}
+
+bool post::Response::success() const
+{
+    return starts_with(status_line, "HTTP/1.1 2");
 }

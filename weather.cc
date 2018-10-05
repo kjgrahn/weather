@@ -91,6 +91,10 @@ namespace {
 	return -1;
     }
 
+    /**
+     * Fetch the data and print it to 'os'.  Returns an exit code, and
+     * may print error messages to stderr.
+     */
     int weather(std::ostream& os,
 		const std::string& key,
 		const std::string& station)
@@ -114,7 +118,7 @@ namespace {
 	    return 1;
 	}
 
-	const auto req = post(host, key, station);
+	const auto req = post::req(host, key, station);
 
 	if(!fd.write(req.data(), req.size())) {
 	    cerr << "error: request failed: " << fd.error() << '\n';
@@ -127,7 +131,13 @@ namespace {
 	    return 1;
 	}
 
-	os << s;
+	const post::Response resp {s};
+	if(!resp.success()) {
+	    cerr << "error: " << resp.status_line << '\n';
+	    return 1;
+	}
+
+	os << resp.body;
 
 	return 0;
     }

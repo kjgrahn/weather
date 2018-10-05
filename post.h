@@ -30,9 +30,22 @@
 
 #include <string>
 
+namespace post {
+    std::string req(const std::string& host,
+		    const std::string& key,
+		    const std::string& station);
 
-std::string post(const std::string& host,
-		 const std::string& key,
-		 const std::string& station);
+    /**
+     * A parsed response to the post: the status line and the
+     * body (the actual XML response).
+     */
+    struct Response {
+	explicit Response(const std::string& buf);
+
+	const std::string status_line;
+	const std::string body;
+	bool success() const;
+    };
+}
 
 #endif
