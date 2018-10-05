@@ -3,7 +3,7 @@
 .IP \\fB\\$*
 ..
 .
-.TH weather 5 "SEP 2018" Weather "User Manuals"
+.TH weather 5 "OCT 2018" Weather "User Manuals"
 .
 .SH "NAME"
 weather \- weather observations file format
@@ -12,12 +12,12 @@ weather \- weather observations file format
 .
 A weather observation, or meteorology observation, or weather sample file
 is a set of samples from a single place, at different times.
-The sampled data includes e.g. temperature.
+The sampled data includes e.g. temperature and wind speed.
 .PP
 In reality, the file format is designed for the data provided by
 .IR Trafikverket ,
 who have weather stations along the roads in Sweden,
-and who allow public access to the data.
+and who allow public HTTP-based access to the data.
 .
 .
 .SH "BASIC SYNTAX"
@@ -26,11 +26,11 @@ The file format is a line-oriented text file format.
 Allowed text encodings are
 .BR UTF-8 ,
 .B "ISO\ 8859-1"
-(Latin-1), and
+(Latin-1) and (by extension)
 .BR ASCII .
 .PP
 Blank lines and comment lines, introduced by a
-.IR # ,
+.BR # ,
 are ignored.
 All other lines are fields, on the form
 .IP
@@ -40,29 +40,24 @@ Whitespace is allowed, except before the field name.
 .PP
 The actual content is a series of timestamped
 .BR samples ,
-from a single place.  A sample starts with a
+from a single weather station.  A sample starts with a
 .B date
 field and continues to the next sample.
-Samples need not be ordered by time (although keeping them
-ordered is good policy).
+Samples need not be ordered by time \- although keeping them
+ordered is good policy.
 No fields are mandatory, and the fields may vary between samples.
 .
-.SH "FIELDS"
+.SS "Fields"
 .
-.SS "Time"
-.
-.BP date
-Sample time, in ISO format. Timezone?
-.
-.SS "Temperature"
+.BP date 18x
+Sample time, in ISO format. The timezone appears to be Swedish local time
+(and thus ambiguous when daylight savings time ends in fall).
 .
 .BP temperature.road
 Road temperature, in degrees centigrade.
 .
 .BP temperature.air
 Air temperature.
-.
-.SS "Wind"
 .
 .BP wind.direction
 Wind direction, in degrees.  270 means wind from the west.
@@ -74,12 +69,10 @@ Mean value over ten minutes.
 .BP wind.force.max
 Max wind force during the past 30 minutes.
 .
-.SS "Other"
-.
 .BP humidity
 Relative humidity, in percent.
 .
-.BP rain
+.\".BP rain
 .
 .
 .SH "EXAMPLE"
