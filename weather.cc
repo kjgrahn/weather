@@ -172,10 +172,13 @@ int main(int argc, char ** argv)
 	"       "
 	+ prog + " -k key station file\n"
 	"       "
-	+ prog + " --help";
+	+ prog + " --help\n"
+	"       "
+	+ prog + " --version";
     const char optstring[] = "k:";
     const struct option long_options[] = {
 	{"help", 0, 0, 'H'},
+	{"version", 0, 0, 'V'},
 	{0, 0, 0, 0}
     };
 
@@ -194,6 +197,11 @@ int main(int argc, char ** argv)
 	    break;
 	case 'H':
 	    std::cout << usage << '\n';
+	    return 0;
+	    break;
+	case 'V':
+	    std::cout << "Weather 1.0\n"
+		      << "Copyright (c) 2018 Jörgen Grahn\n";
 	    return 0;
 	    break;
 	case ':':

@@ -72,7 +72,7 @@ std::string post::req(const std::string& host,
     std::ostringstream req;
     req << "POST /v1.3/data.xml HTTP/1.1" << crlf
 	<< "Host: " << host << crlf
-	<< "User-Agent: weather" << crlf
+	<< "User-Agent: weather/1.0" << crlf
 	<< "Accept: */*" << crlf
 	<< "Content-Type: application/xml" << crlf
 	<< "Content-Length: " << bodys.size() << crlf
