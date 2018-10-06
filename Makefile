@@ -4,8 +4,13 @@
 # All rights reserved.
 
 SHELL=/bin/bash
+INSTALLBASE=/usr/local
+
 CXXFLAGS=-W -Wall -pedantic -std=c++11 -g -Os
 CPPFLAGS=-I/usr/include/libxml2
+
+.PHONY: all
+all: weather
 
 weather: weather.o libweather.a
 	$(CXX) $(CXXFLAGS) -o $@ $< -L. -lweather -lxml2
@@ -15,9 +20,11 @@ libweather.a: post.o
 libweather.a: socket.o
 	$(AR) -r $@ $^
 
-.PHONY: foo
-foo: post
-	curl -LO --data-binary @post 'http://api.trafikinfo.trafikverket.se/v1.3/data.xml'
+.PHONY: install
+install: weather weather.1 weather.5
+	install -m555 weather $(INSTALLBASE)/bin/
+	install -m644 weather.1 $(INSTALLBASE)/man/man1/
+	install -m644 weather.5 $(INSTALLBASE)/man/man5/
 
 .PHONY: tags TAGS
 tags: TAGS
