@@ -92,10 +92,11 @@ namespace {
     }
 
     /**
-     * Fetch the data and print it to 'os'.  Returns an exit code, and
-     * may print error messages to stderr.
+     * Fetch the data and print it to 'os' (with an optional prefix
+     * separating it from earlier entries in the file).  Returns an
+     * exit code, and may print error messages to stderr.
      */
-    int weather(std::ostream& os,
+    int weather(std::ostream& os, const char* prefix,
 		const std::string& key,
 		const std::string& station)
     {
@@ -137,8 +138,13 @@ namespace {
 	    return 1;
 	}
 
-	os << resp.body;
+	const auto samples = parse(resp.body);
+	if(samples.empty()) {
+	    cerr << "error: no valid weather data in the HTTP response\n";
+	    return 1;
+	}
 
+	render(os, prefix, samples);
 	return 0;
     }
 
@@ -146,14 +152,14 @@ namespace {
 		const std::string& station,
 		const std::string& file)
     {
-	if(file.empty()) return weather(std::cout, key, station);
+	if(file.empty()) return weather(std::cout, "", key, station);
 	std::ofstream os(file, std::ios::app);
 	if(!os) {
 	    std::cerr << "cannot open '" << file << "' for writing: "
 		      << std::strerror(errno) << '\n';
 	    return 1;
 	}
-	return weather(os, key, station);
+	return weather(os, "\n", key, station);
     }
 }
 

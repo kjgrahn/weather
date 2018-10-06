@@ -27,6 +27,8 @@
 #include "sample.h"
 
 #include <unordered_set>
+#include <iostream>
+#include <algorithm>
 
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
@@ -81,56 +83,139 @@ namespace {
 	}
 	return acc;
     }
+
+    /**
+     * Parse the /Response/Result/WeatherStation XML document in string
+     * 'buf' to a vector of Samples.  Parse errors cause an empty vector
+     * to be returned.
+     */
+    std::vector<Sample> parse(xml::Doc* doc)
+    {
+	std::vector<Sample> acc;
+
+	xml::xpath::Ctx* ctx = xmlXPathNewContext(doc);
+
+	std::unordered_set<std::string> times;
+	auto seen = [&times] (const std::string& t) {
+	    auto it = times.find(t);
+	    if(it!=end(times)) return true;
+	    times.insert(t);
+	    return false;
+	};
+
+	xml::xpath::Obj* const match = eval(ctx, "/RESPONSE/RESULT/WeatherStation/*[MeasureTime]");
+	for(xml::Node* measurement : nodes(match)) {
+
+	    Sample sample;
+
+	    auto get = [ctx, measurement] (const char* expr) {
+		auto match = eval(ctx, measurement, expr);
+		auto nn = nodes(match);
+		if (nn.size() != 1) return "";
+		return cast(xmlNodeGetContent(nn.front()));
+	    };
+	    auto set = [get, &sample] (const char* name,
+				       const char* expr) {
+		std::string val = get(expr);
+		if (val.size()) sample.data[name] = val;
+	    };
+
+	    sample.time = get("MeasureTime");
+	    if(seen(sample.time)) continue;
+
+	    set("temperature.road", "Road/Temp");
+	    set("temperature.air",  "Air/Temp");
+	    set("humidity",         "Air/RelativeHumidity");
+	    set("wind.direction",   "Wind/Direction");
+	    set("wind.force",       "Wind/Force");
+	    set("wind.force.max",   "Wind/ForceMax");
+
+	    acc.push_back(sample);
+	}
+
+	xmlXPathFreeContext(ctx);
+	return acc;
+    }
 }
 
 
-std::vector<Sample> parse(const char* name)
+std::vector<Sample> parse(const std::string& buf)
 {
-    std::vector<Sample> acc;
-
-    xml::Doc* doc = xmlParseFile(name);
-    xml::xpath::Ctx* ctx = xmlXPathNewContext(doc);
-
-    std::unordered_set<std::string> times;
-    auto seen = [&times] (const std::string& t) {
-		    auto it = times.find(t);
-		    if(it!=end(times)) return true;
-		    times.insert(t);
-		    return false;
-		};
-
-    xml::xpath::Obj* const match = eval(ctx, "/RESPONSE/RESULT/WeatherStation/*[MeasureTime]");
-    for(xml::Node* measurement : nodes(match)) {
-
-	Sample sample;
-
-	auto get = [ctx, measurement] (const char* expr) {
-		       auto match = eval(ctx, measurement, expr);
-		       auto nn = nodes(match);
-		       if (nn.size() != 1) return "";
-		       return cast(xmlNodeGetContent(nn.front()));
-		   };
-	auto set = [get, &sample] (const char* name,
-				   const char* expr) {
-		       std::string val = get(expr);
-		       if (val.size()) sample.data[name] = val;
-		   };
-
-	sample.time = get("MeasureTime");
-	if(seen(sample.time)) continue;
-
-	set("temperature.road", "Road/Temp");
-	set("temperature.air",  "Air/Temp");
-	set("humidity",         "Air/RelativeHumidity");
-	set("wind.direction",   "Wind/Direction");
-	set("wind.force",       "Wind/Force");
-	set("wind.force.max",   "Wind/ForceMax");
-
-	acc.push_back(sample);
-    }
-
-    xmlXPathFreeContext(ctx);
+    xml::Doc* doc = xmlParseMemory(buf.data(), buf.size());
+    const auto acc = parse(doc);
     xmlFreeDoc(doc);
 
     return acc;
+}
+
+/**
+ * Like parse(std::string) but reads from a named file.
+ */
+std::vector<Sample> parse(const char* name)
+{
+    xml::Doc* doc = xmlParseFile(name);
+    const auto acc = parse(doc);
+    xmlFreeDoc(doc);
+
+    return acc;
+}
+
+
+namespace {
+
+    std::ostream& ljust(std::ostream& os, const std::string& s, size_t n)
+    {
+	os << s;
+	if(s.size() < n) {
+	    os << std::string(n - s.size(), ' ');
+	}
+	return os;
+    }
+
+    std::ostream& rjust(std::ostream& os, const std::string& s, size_t n)
+    {
+	if(s.size() < n) {
+	    os << std::string(n - s.size(), ' ');
+	}
+	return os << s;
+    }
+}
+
+std::ostream& operator<< (std::ostream& os, const Sample& val)
+{
+    os << "date: " << val.time << '\n';
+
+    auto put = [&val] (std::ostream& os, const char* name) {
+	const auto it = val.data.find(name);
+	if(it==end(val.data)) return;
+
+	ljust(os, it->first, 16) << ": ";
+	rjust(os, it->second, 5) << '\n';
+    };
+
+    put(os, "temperature.road");
+    put(os, "temperature.air");
+    put(os, "humidity");
+    put(os, "wind.direction");
+    put(os, "wind.force");
+    put(os, "wind.force.max");
+
+    return os;
+}
+
+/**
+ * Sort and print a sequence of samples to 'os', but first print
+ * 'prefix'.
+ */
+void render(std::ostream& os, const char* prefix,
+	    std::vector<Sample> samples)
+{
+    std::sort(begin(samples), end(samples));
+
+    os << prefix;
+    const char* delimiter = "";
+    for(const auto& sample: samples) {
+	os << delimiter << sample;
+	delimiter = "\n";
+    }
 }

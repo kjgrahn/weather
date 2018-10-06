@@ -31,6 +31,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <iosfwd>
 
 
 class Sample {
@@ -41,6 +42,12 @@ public:
     bool operator< (const Sample& other) const { return time < other.time; }
 };
 
+std::ostream& operator<< (std::ostream& os, const Sample& val);
+
 std::vector<Sample> parse(const char* file);
+std::vector<Sample> parse(const std::string& buf);
+
+void render(std::ostream& os, const char* prefix,
+	    std::vector<Sample> samples);
 
 #endif
