@@ -1,0 +1,35 @@
+#!/usr/bin/perl -w
+#
+# to_plot - convert from weather(5) to gnuplot data
+#
+use strict;
+
+my %sample;
+
+sub emit {
+    my $prefix = '';
+    foreach ('date',
+	     'temperature.road',
+	     'temperature.air',
+	     'humidity',
+	     'wind.direction',
+	     'wind.force',
+	     'wind.force.max') {
+	$sample{$_} = '-' unless defined $sample{$_};
+	print "$prefix$sample{$_}";
+	$prefix = '  ';
+    }
+    print "\n";
+}
+
+while(<>) {
+    next if /^#/;
+    next if /^\s+$/;
+    /(\S+)\s*:\s*(\S+)/ or die;
+    my ($key, $val) = ($1, $2);
+    emit if $key eq 'date' && %sample;
+
+    $sample{$key} = $val;
+}
+
+emit if %sample;
