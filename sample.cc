@@ -149,18 +149,6 @@ std::vector<Sample> parse(const std::string& buf)
     return acc;
 }
 
-/**
- * Like parse(std::string) but reads from a named file.
- */
-std::vector<Sample> parse(const char* name)
-{
-    xml::Doc* doc = xmlParseFile(name);
-    const auto acc = parse(doc);
-    xmlFreeDoc(doc);
-
-    return acc;
-}
-
 
 namespace {
 

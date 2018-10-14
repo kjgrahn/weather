@@ -48,7 +48,6 @@ public:
 
 std::ostream& operator<< (std::ostream& os, const Sample& val);
 
-std::vector<Sample> parse(const char* file);
 std::vector<Sample> parse(const std::string& buf);
 
 void render(std::ostream& os, const char* prefix,
