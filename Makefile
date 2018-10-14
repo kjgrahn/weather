@@ -11,6 +11,7 @@ CPPFLAGS=-I/usr/include/libxml2
 
 .PHONY: all
 all: weather
+all: test/test
 
 weather: weather.o libweather.a
 	$(CXX) $(CXXFLAGS) -o $@ $< -L. -lweather -lxml2
@@ -19,6 +20,23 @@ libweather.a: sample.o
 libweather.a: post.o
 libweather.a: socket.o
 	$(AR) -r $@ $^
+
+.PHONY:  checkv
+check: test/test
+	./test/test
+checkv: test/test
+	valgrind -q ./test/test -v
+
+test/test: test/test.o test/libtest.a libweather.a
+	$(CXX) $(CXXFLAGS) -o $@ test/test.o -Ltest/ -ltest -L. -lweather -lxml2
+
+test/test.cc: test/libtest.a
+	orchis -o $@ $^
+
+test/libtest.a: test/test_xml.o
+	$(AR) -r $@ $^
+
+test/test_%.o: CPPFLAGS+=-I.
 
 .PHONY: install
 install: weather weather.1 weather.5
@@ -43,7 +61,7 @@ love:
 
 # DO NOT DELETE
 
-$(shell mkdir -p dep)
+$(shell mkdir -p dep/test)
 DEPFLAGS=-MT $@ -MMD -MP -MF dep/$*.Td
 COMPILE.cc=$(CXX) $(DEPFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
 
@@ -52,4 +70,6 @@ COMPILE.cc=$(CXX) $(DEPFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
 	@mv dep/$*.{Td,d}
 
 dep/%.d: ;
+dep/test/%.d: ;
 -include dep/*.d
+-include dep/test/*.d
