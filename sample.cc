@@ -143,6 +143,7 @@ namespace {
 std::vector<Sample> parse(const std::string& buf)
 {
     xml::Doc* doc = xmlParseMemory(buf.data(), buf.size());
+    if(!doc) return {};
     const auto acc = parse(doc);
     xmlFreeDoc(doc);
 
