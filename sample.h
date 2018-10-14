@@ -34,6 +34,10 @@
 #include <iosfwd>
 
 
+/**
+ * A weather station sample: a specific time, and the values
+ * collected then. Values are named.
+ */
 class Sample {
 public:
     std::string time;

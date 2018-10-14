@@ -85,9 +85,10 @@ namespace {
     }
 
     /**
-     * Parse the /Response/Result/WeatherStation XML document in string
-     * 'buf' to a vector of Samples.  Parse errors cause an empty vector
-     * to be returned.
+     * Parse the /Response/Result/WeatherStation XML document to a
+     * vector of Samples.  Multiple samples with the same timestamp
+     * are discarded. Parse errors cause an empty vector to be
+     * returned.
      */
     std::vector<Sample> parse(xml::Doc* doc)
     {
