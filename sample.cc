@@ -84,6 +84,8 @@ namespace {
 	return acc;
     }
 
+    void nop(void*, const char*, ...) {}
+
     /**
      * Parse the /Response/Result/WeatherStation XML document to a
      * vector of Samples.  Multiple samples with the same timestamp
@@ -92,6 +94,8 @@ namespace {
      */
     std::vector<Sample> parse(xml::Doc* doc)
     {
+	xmlSetGenericErrorFunc(nullptr, nop);
+
 	std::vector<Sample> acc;
 
 	xml::xpath::Ctx* ctx = xmlXPathNewContext(doc);
