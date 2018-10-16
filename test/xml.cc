@@ -128,9 +128,8 @@ namespace stream {
 
 	void gigantic(TC)
 	{
-	    NullBuf nullbuf;
-	    std::ostream os(nullbuf);
-	    xml::ostream xs(os);
+	    std::ostringstream ss;
+	    xml::ostream xs(ss);
 	    xs << elem("base");
 	    for(unsigned i=0; i<1e6; i++) {
 		xs << "intro" << elem("elem");
