@@ -19,6 +19,7 @@ weather: weather.o libweather.a
 libweather.a: sample.o
 libweather.a: post.o
 libweather.a: socket.o
+libweather.a: week.o
 	$(AR) -r $@ $^
 
 # tests
@@ -36,6 +37,7 @@ test/test.cc: test/libtest.a
 	orchis -o $@ $^
 
 test/libtest.a: test/test_xml.o
+test/libtest.a: test/test_week.o
 	$(AR) -r $@ $^
 
 test/test_%.o: CPPFLAGS+=-I.
