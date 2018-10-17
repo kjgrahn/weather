@@ -1,4 +1,6 @@
 weather
+test/test
+test/test.cc
 *.o
 lib*.a
 dep/
