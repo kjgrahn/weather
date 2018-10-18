@@ -21,6 +21,8 @@ libweather.a: post.o
 libweather.a: socket.o
 	$(AR) -r $@ $^
 
+# tests
+
 .PHONY:  checkv
 check: test/test
 	./test/test
@@ -37,6 +39,8 @@ test/libtest.a: test/test_xml.o
 	$(AR) -r $@ $^
 
 test/test_%.o: CPPFLAGS+=-I.
+
+# other
 
 .PHONY: install
 install: weather weather.1 weather.5
