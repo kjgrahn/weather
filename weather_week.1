@@ -1,0 +1,59 @@
+.ss 12 0
+.de BP
+.IP \\fB\\$*
+..
+.
+.TH weather_week 1 "NOV 2018" Weather "User Manuals"
+.SH "NAME"
+weather_week \- plot weekly weather data
+.
+.SH "SYNOPSIS"
+.B weather_week
+.RB [ \-o
+.IR image-file ]
+.I file
+\&...
+.br
+.B weather_week --help
+.br
+.B weather_week --version
+.
+.SH "DESCRIPTION"
+.
+.B weather_week
+reads
+.BR weather (5)
+data and renders the current week's temperature graph.
+The graph is rendered in
+.I \s-1SVG\s0
+format. It's intended to be immediately readable, but not necessarily
+detailed and very accurate.
+.PP
+A week is defined as Monday\-Sunday, since that's how we think about
+weeks in Sweden nowadays.
+.
+.SH "OPTIONS"
+.
+.BP \-o\ \fIimage-file
+The name of the image file to write.  If none is provided,
+the image is written to standard output.
+.
+.BP --help
+Print a brief help text and exit.
+.
+.BP --version
+Print version information and exit.
+.
+.
+.SH "AUTHOR"
+.
+J\(:orgen Grahn
+.IR \[fo]grahn+src@snipabacken.se\[fc] .
+.
+.SH "LICENSE"
+The Modified BSD license (also known as the 3-clause BSD license).
+.
+.SH "SEE ALSO"
+.
+.BR weather (5),
+.BR weather (1).
