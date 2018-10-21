@@ -61,8 +61,10 @@ TAGS:
 clean:
 	$(RM) weather
 	$(RM) *.o lib*.a
-	$(RM) *.pyc
+	$(RM) test/*.o test/lib*.a
+	$(RM) test/test test/test.cc
 	$(RM) -r dep
+	$(RM) -r TAGS
 
 love:
 	@echo "not war?"
