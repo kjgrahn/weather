@@ -1,4 +1,5 @@
 weather
+weather_week
 test/test
 test/test.cc
 *.o

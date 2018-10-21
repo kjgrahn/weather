@@ -11,16 +11,22 @@ CPPFLAGS=-I/usr/include/libxml2
 
 .PHONY: all
 all: weather
+all: weather_week
 all: test/test
 
 weather: weather.o libweather.a
+	$(CXX) $(CXXFLAGS) -o $@ $< -L. -lweather -lxml2
+
+weather_week: weather_week.o libweather.a
 	$(CXX) $(CXXFLAGS) -o $@ $< -L. -lweather -lxml2
 
 libweather.a: sample.o
 libweather.a: post.o
 libweather.a: socket.o
 libweather.a: week.o
+libweather.a: plot.o
 libweather.a: area.o
+libweather.a: curves.o
 libweather.a: value.o
 libweather.a: xml.o
 libweather.a: files...o
@@ -42,6 +48,7 @@ test/test.cc: test/libtest.a
 
 test/libtest.a: test/test_xml.o
 test/libtest.a: test/test_week.o
+test/libtest.a: test/test_curves.o
 test/libtest.a: test/test_value.o
 test/libtest.a: test/test_xmlwrite.o
 test/libtest.a: test/test_files.o
@@ -53,8 +60,8 @@ test/test_%.o: CPPFLAGS+=-I.
 
 .PHONY: install
 install: weather weather.1 weather.5
-	install -m555 weather $(INSTALLBASE)/bin/
-	install -m644 weather.1 $(INSTALLBASE)/man/man1/
+	install -m555 weather{,_week} $(INSTALLBASE)/bin/
+	install -m644 weather{,_week}.1 $(INSTALLBASE)/man/man1/
 	install -m644 weather.5 $(INSTALLBASE)/man/man5/
 
 .PHONY: tags TAGS
@@ -64,7 +71,7 @@ TAGS:
 
 .PHONY: clean
 clean:
-	$(RM) weather
+	$(RM) weather{,_week}
 	$(RM) *.o lib*.a
 	$(RM) test/*.o test/lib*.a
 	$(RM) test/test test/test.cc
