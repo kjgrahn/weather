@@ -9,6 +9,7 @@
 
 #include <iosfwd>
 #include <string>
+#include <sstream>
 #include <stack>
 
 namespace xml {
@@ -77,6 +78,14 @@ namespace xml {
 	std::stack<elem> stack;
 	std::ostream& os;
     };
+
+    template <class T>
+    ostream& operator<< (ostream& xs, const T& val)
+    {
+	std::ostringstream oss;
+	oss << val;
+	return xs << oss.str();
+    }
 }
 
 #endif

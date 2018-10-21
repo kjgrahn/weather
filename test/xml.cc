@@ -16,6 +16,13 @@ namespace {
 	ref += s;
 	orchis::assert_eq(ss.str(), ref);
     }
+
+    class Hello {};
+
+    std::ostream& operator<< (std::ostream& os, const Hello&)
+    {
+	return os << "Hello & world!";
+    }
 }
 
 namespace stream {
@@ -41,6 +48,16 @@ namespace stream {
 	xs << elem("foo") << bar << end;
 
 	assert_xml(ss, "<foo>bar</foo>");
+    }
+
+    void object(TC)
+    {
+	std::ostringstream ss;
+	xml::ostream xs(ss);
+	const Hello hello;
+	xs << elem("foo") << hello << end;
+
+	assert_xml(ss, "<foo>Hello &amp; world!</foo>");
     }
 
     void empty(TC)
