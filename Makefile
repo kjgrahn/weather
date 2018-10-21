@@ -21,6 +21,7 @@ libweather.a: post.o
 libweather.a: socket.o
 libweather.a: week.o
 libweather.a: xml.o
+libweather.a: files...o
 	$(AR) -r $@ $^
 
 # tests
