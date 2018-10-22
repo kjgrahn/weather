@@ -5,6 +5,7 @@
 #include <xml.h>
 
 #include <orchis.h>
+#include <fstream>
 
 using orchis::TC;
 
@@ -120,8 +121,8 @@ namespace stream {
 
 	void flat(TC)
 	{
-	    std::ostringstream ss;
-	    xml::ostream xs(ss);
+	    std::ofstream nil;
+	    xml::ostream xs(nil);
 	    xs << elem("foo");
 	    for(unsigned i=0; i<1000; i++) {
 		xs << elem("bar") << end;
@@ -131,8 +132,8 @@ namespace stream {
 
 	void nested(TC)
 	{
-	    std::ostringstream ss;
-	    xml::ostream xs(ss);
+	    std::ofstream nil;
+	    xml::ostream xs(nil);
 	    xs << elem("foo");
 	    for(unsigned i=0; i<1000; i++) {
 		xs << elem("bar");
@@ -145,8 +146,8 @@ namespace stream {
 
 	void gigantic(TC)
 	{
-	    std::ostringstream ss;
-	    xml::ostream xs(ss);
+	    std::ofstream nil;
+	    xml::ostream xs(nil);
 	    xs << elem("base");
 	    for(unsigned i=0; i<1e6; i++) {
 		xs << "intro" << elem("elem");
