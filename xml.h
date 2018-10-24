@@ -39,8 +39,7 @@ namespace xml {
      * - The XML declaration.
      * - Closing the elements with a </foo> or a <foo/>.
      * - Escaping & to &amp; and so on.
-     * - Indenting for readability, if you ask for it
-     *   (oops, not implemented yet!)
+     * - Indenting for readability.
      *
      * Otherwise it provides a flattened view of the document.
      * To render an element, you feed it, in this order, with:
@@ -59,32 +58,36 @@ namespace xml {
      */
     class ostream {
     public:
-	ostream(std::ostream& os, const std::string& indent = "");
+	ostream(std::ostream& os, unsigned indent = 2);
+	ostream(std::ostream& os, const std::string& declaration,
+		unsigned indent = 2);
+
 	ostream& operator<< (const elem& e);
 	ostream& operator<< (const elem_end& e);
 	ostream& operator<< (const attr& attr);
-	ostream& operator<< (const char* val);
-	ostream& operator<< (const std::string& val);
+
+	template <class T>
+	ostream& operator<< (const T& val);
+
     private:
-	ostream& content(const char* a, const char* b);
-	struct elem {
-	    explicit elem(const std::string& name)
-		: name(name),
-		  has_content(false)
-	    {}
-	    std::string name;
-	    bool has_content;
-	};
+	ostream& text();
+
+	void nl_indent() const;
+	void flush_indent();
+
 	std::stack<elem> stack;
+	std::ostringstream ss;
 	std::ostream& os;
+	const unsigned indent;
+	char prev;
     };
 
+
     template <class T>
-    ostream& operator<< (ostream& xs, const T& val)
+    ostream& ostream::operator<< (const T& val)
     {
-	std::ostringstream oss;
-	oss << val;
-	return xs << oss.str();
+	ss << val;
+	return text();
     }
 }
 

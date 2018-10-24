@@ -38,7 +38,10 @@ namespace stream {
 	xml::ostream xs(ss);
 	xs << elem("foo") << "bar" << end;
 
-	assert_xml(ss, "<foo>bar</foo>");
+	assert_xml(ss,
+		   "<foo>\n"
+		   "  bar\n"
+		   "</foo>");
     }
 
     void string(TC)
@@ -48,7 +51,41 @@ namespace stream {
 	const std::string bar = "bar";
 	xs << elem("foo") << bar << end;
 
-	assert_xml(ss, "<foo>bar</foo>");
+	assert_xml(ss,
+		   "<foo>\n"
+		   "  bar\n"
+		   "</foo>");
+    }
+
+    void newline_suppression(TC)
+    {
+	std::ostringstream ss;
+	xml::ostream xs(ss);
+	const std::string bar = "bar\nbaz\n";
+	xs << elem("foo") << bar << end;
+
+	assert_xml(ss,
+		   "<foo>\n"
+		   "  bar\n"
+		   "baz\n"
+		   "</foo>");
+    }
+
+    void strings(TC)
+    {
+	std::ostringstream ss;
+	xml::ostream xs(ss);
+	xs << elem("foo") << "foo" << "bar"
+	   << elem("bar") << "baz" << end
+	   << end;
+
+	assert_xml(ss,
+		   "<foo>\n"
+		   "  foobar\n"
+		   "  <bar>\n"
+		   "    baz\n"
+		   "  </bar>\n"
+		   "</foo>");
     }
 
     void object(TC)
@@ -58,7 +95,10 @@ namespace stream {
 	const Hello hello;
 	xs << elem("foo") << hello << end;
 
-	assert_xml(ss, "<foo>Hello &amp; world!</foo>");
+	assert_xml(ss,
+		   "<foo>\n"
+		   "  Hello &amp; world!\n"
+		   "</foo>");
     }
 
     void empty(TC)
@@ -79,8 +119,10 @@ namespace stream {
 	   << end;
 
 	assert_xml(ss,
-		   "<foo bar='baz'>"
-		   "<bat u='v'/>"
+		   "<foo\n"
+		   "  bar='baz'>\n"
+		   "  <bat\n"
+		   "    u='v'/>\n"
 		   "</foo>");
     }
 
@@ -91,7 +133,8 @@ namespace stream {
 	xs << elem("foo") << attr("bar", "don't") << end;
 
 	assert_xml(ss,
-		   "<foo bar='don&apos;t'/>");
+		   "<foo\n"
+		   "  bar='don&apos;t'/>");
     }
 
     namespace indent {
@@ -99,7 +142,7 @@ namespace stream {
 	void simple(TC)
 	{
 	    std::ostringstream ss;
-	    xml::ostream xs(ss, "..");
+	    xml::ostream xs(ss);
 	    xs << elem("foo")
 	       <<   "bar"
 	       <<   elem("bat") << "fred" << end
@@ -108,12 +151,44 @@ namespace stream {
 
 	    assert_xml(ss,
 		       "<foo>\n"
-		       "..bar\n"
-		       "..<bat>\n"
-		       "....fred\n"
-		       "..</bat>\n"
-		       "..<barney/>\n"
+		       "  bar\n"
+		       "  <bat>\n"
+		       "    fred\n"
+		       "  </bat>\n"
+		       "  <barney/>\n"
 		       "</foo>");
+	}
+
+	void zero(TC)
+	{
+	    std::ostringstream ss;
+	    xml::ostream xs(ss, 0);
+	    xs << elem("foo")
+	       <<   "bar"
+	       <<   elem("bat") << "fred" << end
+	       <<   elem("barney") << end
+	       << end;
+
+	    assert_xml(ss,
+		       "<foo>\n"
+		       "bar\n"
+		       "<bat>\n"
+		       "fred\n"
+		       "</bat>\n"
+		       "<barney/>\n"
+		       "</foo>");
+	}
+
+	void attribute(TC)
+	{
+	    std::ostringstream ss;
+	    xml::ostream xs(ss);
+	    xs << elem("foo") << attr("bar", "baz")
+	       << end;
+
+	    assert_xml(ss,
+		       "<foo\n"
+		       "  bar='baz'/>");
 	}
     }
 
@@ -149,11 +224,11 @@ namespace stream {
 	    std::ofstream nil;
 	    xml::ostream xs(nil);
 	    xs << elem("base");
-	    for(unsigned i=0; i<1e6; i++) {
+	    for(unsigned i=0; i<1e4; i++) {
 		xs << "intro" << elem("elem");
 	    }
 	    xs << "innermost";
-	    for(unsigned i=0; i<1e6; i++) {
+	    for(unsigned i=0; i<1e4; i++) {
 		xs << end << "postscript";
 	    }
 	    xs << end;
@@ -166,16 +241,22 @@ namespace stream {
 	{
 	    std::ostringstream ss;
 	    xml::ostream xs(ss);
-	    xs << elem("foo") << " a&b " << end;
-	    assert_xml(ss, "<foo> a&amp;b </foo>");
+	    xs << elem("foo") << "a&b" << end;
+	    assert_xml(ss,
+		       "<foo>\n"
+		       "  a&amp;b\n"
+		       "</foo>");
 	}
 
 	void lt_gt(TC)
 	{
 	    std::ostringstream ss;
 	    xml::ostream xs(ss);
-	    xs << elem("foo") << " <> " << end;
-	    assert_xml(ss, "<foo> &lt;&gt; </foo>");
+	    xs << elem("foo") << "<>" << end;
+	    assert_xml(ss,
+		       "<foo>\n"
+		       "  &lt;&gt;\n"
+		       "</foo>");
 	}
     }
 }

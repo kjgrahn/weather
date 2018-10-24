@@ -35,58 +35,136 @@ namespace {
 }
 
 
+ostream::ostream(std::ostream& os, unsigned indent)
+    : ostream(os,
+	      "<?xml version='1.0' encoding='UTF-8'?>",
+	      indent)
+{}
+
 ostream::ostream(std::ostream& os,
-		 const std::string&)
-    : os(os)
+		 const std::string& declaration,
+		 unsigned indent)
+    : os(os),
+      indent(indent),
+      prev('?')
 {
-    os << "<?xml version='1.0' encoding='UTF-8'?>\n";
+    os << declaration;
 }
 
+/**
+ * Open an element.
+ */
 ostream& ostream::operator<< (const xml::elem& e)
 {
-    if(!stack.empty()) {
-	auto& parent = stack.top();
-	if (!parent.has_content++) os << '>';
+    switch(prev) {
+    case 'e':
+    case 'a':
+	os << '>';
+	nl_indent();
+	break;
+    case 't':
+	flush_indent();
+	break;
+    case '.':
+    default:
+	nl_indent();
+	break;
     }
     os << '<' << e.val;
-    stack.push(elem{e.val});
+    stack.push(e);
+    prev = 'e';
     return *this;
 }
 
+/**
+ * End an element. There must be an open element.
+ */
 ostream& ostream::operator<< (const xml::elem_end&)
 {
-    const elem elem = stack.top();
+    const elem e = stack.top();
     stack.pop();
-    if (elem.has_content) {
-	os << "</" << elem.name << '>';
-    }
-    else {
+
+    switch(prev) {
+    case 'e':
+    case 'a':
 	os << "/>";
+	break;
+    case 't':
+	flush_indent();
+	os << "</" << e.val << '>';
+	break;
+    case '.':
+	nl_indent();
+	os << "</" << e.val << '>';
+	break;
     }
+    prev = '.';
     return *this;
 }
 
+/**
+ * Add a key=value attribute. All attributed must be added immediately
+ * after opening the element.
+ */
 ostream& ostream::operator<< (const xml::attr& attr)
 {
-    os << ' ' << attr.name << "='" << attr.val << "'";
+    switch(prev) {
+    case 'e':
+    case 'a':
+	nl_indent();
+	os << attr.name << "='" << attr.val << "'";
+	break;
+    }
+    prev = 'a';
     return *this;
 }
 
-ostream& ostream::content(const char* a, const char* b)
+/**
+ * Add a piece of text.  (The actual text, meanwhile, goes to a
+ * std::ostringstream, from whence it's flushed later.)
+ */
+ostream& ostream::text()
 {
-    bool begun = stack.top().has_content++;
-    if (!begun) os << '>';
+    switch(prev) {
+    case 'e':
+    case 'a':
+	os << '>';
+	nl_indent();
+	break;
+    case 't':
+	break;
+    case '.':
+	nl_indent();
+	break;
+    }
+    prev = 't';
+    return *this;
+}
+
+void ostream::nl_indent() const
+{
+    static const std::string s = "\n                    ";
+    const unsigned nsp = s.size() - 1;
+    unsigned n = stack.size() * indent;
+    os.write(s.data(), 1 + std::min(nsp, n));
+    n -= std::min(nsp, n);
+
+    while(n) {
+	os.write(s.data() + 1, std::min(nsp, n));
+	n -= std::min(nsp, n);
+    }
+}
+
+void ostream::flush_indent()
+{
+    std::string s = ss.str();
+    ss.str("");
+
+    if(s.empty() || s.back() != '\n') s += '\n';
+
+    auto a = s.data();
+    auto b = a + s.size();
+    if(a!=b && b[-1]=='\n') b--;
     escape(os, a, b);
-    return *this;
-}
-
-ostream& ostream::operator<< (const char* val)
-{
-    return content(val, val + std::strlen(val));
-}
-
-ostream& ostream::operator<< (const std::string& val)
-{
-    const char* s = val.data();
-    return content(s, s + val.size());
+    nl_indent();
 }
