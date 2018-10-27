@@ -87,6 +87,7 @@ namespace xml {
     ostream& ostream::operator<< (const T& val)
     {
 	ss << val;
+	if(prev=='t') return *this;
 	return text();
     }
 }
