@@ -40,6 +40,7 @@ namespace xml {
      * - Closing the elements with a </foo> or a <foo/>.
      * - Escaping & to &amp; and so on.
      * - Indenting for readability.
+     * - Ending the document with a newline.
      *
      * Otherwise it provides a flattened view of the document.
      * To render an element, you feed it, in this order, with:

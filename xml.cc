@@ -98,6 +98,7 @@ ostream& ostream::operator<< (const xml::elem_end&)
 	os << "</" << e.val << '>';
 	break;
     }
+    if(stack.empty()) os << '\n';
     prev = '.';
     return *this;
 }

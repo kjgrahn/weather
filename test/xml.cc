@@ -15,6 +15,7 @@ namespace {
     {
 	std::string ref = "<?xml version='1.0' encoding='UTF-8'?>\n";
 	ref += s;
+	ref += '\n';
 	orchis::assert_eq(ss.str(), ref);
     }
 
