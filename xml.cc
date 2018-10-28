@@ -5,22 +5,21 @@
 #include "xml.h"
 
 #include <iostream>
+#include <array>
 #include <algorithm>
-#include <cstring>
 
 using xml::ostream;
 
 namespace {
 
-    template <class It>
-    void escape(std::ostream& os, It a, It b)
+    template <class A>
+    void escape(std::ostream& os, const A& special,
+		const char* a, const char* b)
     {
-	const char special[] = "&<>";
-
 	while (a!=b) {
-	    It c = std::find_first_of(a, b,
-				      std::begin(special),
-				      std::end(special));
+	    auto c = std::find_first_of(a, b,
+					begin(special),
+					end(special));
 	    os.write(a, c-a);
 	    a = c;
 	    if (a!=b) {
@@ -28,9 +27,27 @@ namespace {
 		case '&': os << "&amp;"; break;
 		case '<': os << "&lt;"; break;
 		case '>': os << "&gt;"; break;
+		case '"': os << "&quot;"; break;
+		case '\'': os << "&apos;"; break;
 		}
 	    }
 	}
+    }
+
+    void escape(std::ostream& os, const char* a, const char* b)
+    {
+	constexpr std::array<char, 3> special {'&', '<', '>'};
+	escape(os, special, a, b);
+    }
+
+    std::ostream& escape(std::ostream& os, const xml::attr& attr)
+    {
+	constexpr std::array<char, 5> special {'&', '<', '>', '"', '\''};
+
+	auto a = attr.val.data();
+	auto b = a + attr.val.size();
+	escape(os, special, a, b);
+	return os;
     }
 }
 
@@ -113,7 +130,8 @@ ostream& ostream::operator<< (const xml::attr& attr)
     case 'e':
     case 'a':
 	nl_indent();
-	os << attr.name << "='" << attr.val << "'";
+	os << attr.name << "='";
+	escape(os, attr) << "'";
 	break;
     }
     prev = 'a';

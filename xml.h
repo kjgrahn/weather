@@ -20,6 +20,10 @@ namespace xml {
 	std::string val;
     };
 
+    /**
+     * A key='value' attribute. You don't have to (should not) quote
+     * the value.
+     */
     struct attr {
 	template <class Name, class Val>
 	attr(const Name& name, const Val& val)

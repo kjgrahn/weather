@@ -127,17 +127,6 @@ namespace stream {
 		   "</foo>");
     }
 
-    void attribute_quoting(TC)
-    {
-	std::ostringstream ss;
-	xml::ostream xs(ss);
-	xs << elem("foo") << attr("bar", "don't") << end;
-
-	assert_xml(ss,
-		   "<foo\n"
-		   "  bar='don&apos;t'/>");
-    }
-
     namespace indent {
 
 	void simple(TC)
@@ -258,6 +247,23 @@ namespace stream {
 		       "<foo>\n"
 		       "  &lt;&gt;\n"
 		       "</foo>");
+	}
+
+	void attribute(TC)
+	{
+	    std::ostringstream ss;
+	    xml::ostream xs(ss);
+	    xs << elem("foo")
+	       << attr("bar", "don't")
+	       << attr("baz", "<&>")
+	       << attr("bat", "\"")
+	       << end;
+
+	    assert_xml(ss,
+		       "<foo\n"
+		       "  bar='don&apos;t'\n"
+		       "  baz='&lt;&amp;&gt;'\n"
+		       "  bat='&quot;'/>");
 	}
     }
 }
