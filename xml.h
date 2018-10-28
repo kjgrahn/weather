@@ -14,6 +14,9 @@
 
 namespace xml {
 
+    /**
+     * An element tag, e.g. the foo in <foo>. Used to open an element.
+     */
     struct elem {
 	template <class T>
 	explicit elem(const T& val) : val(val) {}
@@ -33,6 +36,10 @@ namespace xml {
 	std::string val;
     };
 
+    /**
+     * The closing of an element.  All elements opened must eventually
+     * be closed, if you want to create valid XML.
+     */
     struct elem_end {};
     constexpr elem_end end;
 
@@ -50,16 +57,16 @@ namespace xml {
      * To render an element, you feed it, in this order, with:
      * - an elem(name)
      * - zero or more attr(name, val)
-     * - a mix of more elem()s and text
+     * - a mix of more elem()s and text (anything streamable)
      * - an end()
      *
      * The text can be fed as any object which can be put on a
      * std::ostream.
      *
      * Everything is assumed to be utf-8 encoded. There's no
-     * transcoding going on, and the resulting XML is marked as utf-8.
-     * It's up to the user to keep the document well-formed in this
-     * respect.
+     * transcoding going on, and the resulting XML is by default
+     * marked as utf-8.  It's up to the user to keep the document
+     * well-formed in this respect.
      */
     class ostream {
     public:
