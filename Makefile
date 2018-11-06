@@ -41,6 +41,7 @@ test/test.cc: test/libtest.a
 test/libtest.a: test/test_xml.o
 test/libtest.a: test/test_week.o
 test/libtest.a: test/test_xmlwrite.o
+test/libtest.a: test/test_files.o
 	$(AR) -r $@ $^
 
 test/test_%.o: CPPFLAGS+=-I.
