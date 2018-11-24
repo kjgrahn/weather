@@ -20,6 +20,7 @@ libweather.a: sample.o
 libweather.a: post.o
 libweather.a: socket.o
 libweather.a: week.o
+libweather.a: value.o
 libweather.a: xml.o
 libweather.a: files...o
 	$(AR) -r $@ $^
@@ -40,6 +41,7 @@ test/test.cc: test/libtest.a
 
 test/libtest.a: test/test_xml.o
 test/libtest.a: test/test_week.o
+test/libtest.a: test/test_value.o
 test/libtest.a: test/test_xmlwrite.o
 test/libtest.a: test/test_files.o
 	$(AR) -r $@ $^
