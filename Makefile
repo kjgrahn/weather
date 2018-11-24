@@ -20,6 +20,7 @@ libweather.a: sample.o
 libweather.a: post.o
 libweather.a: socket.o
 libweather.a: week.o
+libweather.a: area.o
 libweather.a: value.o
 libweather.a: xml.o
 libweather.a: files...o
