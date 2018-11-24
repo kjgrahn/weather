@@ -144,5 +144,87 @@ namespace curves {
     }
 
     namespace parse {
+
+	void assert_ref(const Curves& curves)
+	{
+	    auto it = curves.begin();
+	    orchis::assert_false(it == curves.end());
+	    const auto curve = *it++;
+	    orchis::assert_true(it == curves.end());
+
+	    orchis::assert_eq(curve.size(), 1);
+	    auto sample = curve.front();
+	    orchis::assert_eq(sample.t, 0);
+	    orchis::assert_eq(sample.temperature_air, -6.7);
+	    orchis::assert_eq(sample.wind_force,      2.5);
+	    orchis::assert_eq(sample.wind_force_max,  3.4);
+	}
+
+	Curves parse(const char* s)
+	{
+	    std::stringstream ss(s);
+	    Files f(ss);
+
+	    std::ostringstream err;
+	    const Curves curves{Week{"2018-11-23T02:03:00"}, f, err};
+
+	    orchis::assert_eq(err.str(), "");
+	    return curves;
+	}
+
+	void plain(TC) {
+	    auto c = parse("date: 2018-11-19T00:00:00\n"
+			   "temperature.road:   8.4\n"
+			   "temperature.air :  -6.7\n"
+			   "humidity        :  92.9\n"
+			   "wind.direction  :   135\n"
+			   "wind.force      :   2.5\n"
+			   "wind.force.max  :   3.4\n");
+	    assert_ref(c);
+	}
+
+	void minimal(TC) {
+	    auto c = parse("date: 2018-11-19T00:00:00\n"
+			   "temperature.air :  -6.7\n"
+			   "wind.force      :   2.5\n"
+			   "wind.force.max  :   3.4");
+	    assert_ref(c);
+	}
+
+	void lines(TC) {
+	    auto c = parse("# comment\n"
+			   "date: 2018-11-19T00:00:00\n"
+			   "temperature.air :  -6.7\n"
+			   "  \n"
+			   "wind.force      :   2.5\n"
+			   "wind.force.max  :   3.4\n"
+			   "  \n"
+			   "\n");
+	    assert_ref(c);
+	}
+
+	void ordering(TC) {
+	    auto c = parse("date: 2018-11-19T00:00:00\n"
+			   "wind.force.max  :   3.4\n"
+			   "wind.force      :   2.5\n"
+			   "temperature.air :  -6.7\n");
+	    assert_ref(c);
+	}
+
+	void spacing(TC) {
+	    auto c = parse("date:2018-11-19T00:00:00  \n"
+			   "temperature.air:-6.7 \n"
+			   "wind.force:2.5 \n"
+			   "wind.force.max:3.4 ");
+	    assert_ref(c);
+	}
+
+	void precision(TC) {
+	    auto c = parse("date: 2018-11-19T00:00:00\n"
+			   "temperature.air : -6.69\n"
+			   "wind.force      : 02.49\n"
+			   "wind.force.max  : 03.400");
+	    assert_ref(c);
+	}
     }
 }
