@@ -67,9 +67,9 @@ public:
     Area(const Scale& scale, const Dimensions& dim);
     Area(const Area& above, const Scale& scale, unsigned height);
 
-    unsigned xscale(double val) const;
-    unsigned yscale(double val) const;
-    unsigned yscale(Value val) const { return yscale(val.value()); }
+    double xscale(double val) const;
+    double yscale(double val) const;
+    double yscale(Value val) const { return yscale(val.value()); }
 
     const unsigned offset;
     const Dimensions dim;

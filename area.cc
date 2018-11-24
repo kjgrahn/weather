@@ -49,7 +49,7 @@ Area::Area(const Area& above, const Scale& scale, unsigned height)
  * The Plot x coordinate for val, a time in 0--1
  * (monday--sunday).
  */
-unsigned Area::xscale(double val) const
+double Area::xscale(double val) const
 {
     return dim.width * val;
 }
@@ -57,7 +57,7 @@ unsigned Area::xscale(double val) const
 /**
  * The Plot y coordinate for val, a value in the scale.
  */
-unsigned Area::yscale(double val) const
+double Area::yscale(double val) const
 {
     return offset + (scale.max - val) * dim.height / (scale.max - scale.min);
 }

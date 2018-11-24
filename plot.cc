@@ -31,17 +31,27 @@
 
 namespace {
 
-    template <class T>
-    xml::attr attr(const char* name, const T& val)
+    /**
+     * A floating-point number formatted with one decimal (because
+     * that's kind of a reasonable scale if the full plot is around
+     * 1000 wide).
+     */
+    std::string str(double val)
     {
-	std::ostringstream ss;
-	ss << val;
-	return {name, ss.str()};
+	char buf[20];
+	std::snprintf(buf, sizeof buf, "%.1f", val);
+	return buf;
     }
 
-    xml::attr attr(const char* name, const char* val)
+    xml::attr attr(const char* name, const char* val) { return {name, val}; }
+    xml::attr attr(const char* name, int val) { return {name, std::to_string(val)}; }
+    xml::attr attr(const char* name, unsigned val) { return {name, std::to_string(val)}; }
+    xml::attr attr(const char* name, double val) { return {name, str(val)}; }
+
+    xml::attr line(double x0, double y0, double x1, double y1)
     {
-	return {name, val};
+	std::string s = str(x0) + ',' + str(y0) + ' ' + str(x1) + ',' + str(y1);
+	return {"points", s};
     }
 
     namespace rect {
@@ -95,7 +105,7 @@ namespace {
 
     xml::ostream& operator<< (xml::ostream& xos, const days& val)
     {
-	unsigned friday = val.a.xscale(5 / 7.0);
+	double friday = val.a.xscale(5 / 7.0);
 	xos << xml::elem("rect")
 	    << attr("x", friday)
 	    << attr("y", val.a.offset)
@@ -106,14 +116,12 @@ namespace {
 	    << xml::end;
 
 	for(unsigned n=1; n<7; n++) {
-	    unsigned x = val.a.xscale(n / 7.0);
-	    std::ostringstream oss;
-	    oss << x << ",0 "
-		<< x << ',' << val.a.dim.height + val.b.dim.height;
+	    double x = val.a.xscale(n / 7.0);
 
 	    xos << xml::elem("polyline")
 		<< attr("stroke", "#808080") << attr("stroke-width", ".5")
-		<< attr("points", oss.str())
+		<< attr("fill", "none")
+		<< line(x, 0, x, val.a.dim.height + val.b.dim.height)
 		<< xml::end;
 	}
 	return xos;
@@ -148,14 +156,12 @@ namespace {
 
 	for(int t = -40; t < 50; t+= 10) {
 	    if(!a.scale.in(t)) continue;
-	    unsigned y = a.yscale(t);
-	    std::ostringstream oss;
-	    oss << "0," << y << ' ' << a.dim.width << ',' << y;
+	    double y = a.yscale(t);
 
 	    xos << xml::elem("polyline")
 		<< attr("stroke", "#808080") << attr("stroke-width", ".5")
 		<< attr("fill", "none")
-		<< attr("points", oss.str())
+		<< line(0, y, a.dim.width, y)
 		<< xml::end;
 	}
 	return xos;
@@ -189,28 +195,29 @@ WeekPlot::~WeekPlot()
 
 namespace {
 
-    void add_pair(std::string& s, unsigned x, unsigned y)
+    xml::attr line(const std::vector<std::pair<double, double>>& v)
     {
-	char buf[20];
-	std::snprintf(buf, sizeof buf, "%s%u,%u",
-		      s.empty() ? "" : " ",
-		      x, y);
-	s += buf;
+	std::string s;
+	for(const auto& p : v) {
+	    s += str(p.first) + ',' + str(p.second) + ' ';
+	}
+	if(s.size()) s.pop_back();
+	return {"points", s};
     }
 
     void line(xml::ostream& xos, const Area& area,
 	      const Curves::Curve& curve,
 	      Curves::Selection selection)
     {
-	std::string s;
+	std::vector<std::pair<double, double>> s;
 	bool flatline = true;
 
 	for(const auto& sample : curve) {
-	    unsigned x = area.xscale(sample.t);
+	    double x = area.xscale(sample.t);
 	    const Value val = sample.*selection;
-	    unsigned y = area.yscale(val);
+	    double y = area.yscale(val);
 
-	    add_pair(s, x, y);
+	    s.push_back({x, y});
 	    if(val!=0) flatline = false;
 	}
 
@@ -218,7 +225,7 @@ namespace {
 	    xos << xml::elem("polyline")
 		<< attr("stroke", "black") << attr("stroke-width", "1")
 		<< attr("fill", "none")
-		<< attr("points", s)
+		<< line(s)
 		<< xml::end;
 	}
     }
