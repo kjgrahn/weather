@@ -27,10 +27,26 @@ data and renders the current week's temperature graph.
 The graph is rendered in
 .I \s-1SVG\s0
 format. It's intended to be immediately readable, but not necessarily
-detailed and very accurate.
+detailed or very accurate.
+What's plotted is:
+.
+.BP temperature
+Air temperature; not the road temperature, which may also be available.
+.
+.BP wind
+The mean wind force over ten minutes, and
+(less distinctly) the max wind force over the past half hour,
+if these are available in the input.
+.
 .PP
-A week is defined as Monday\-Sunday, since that's how we think about
-weeks in Sweden nowadays.
+For other data that's not plotted, see
+.BR weather (5).
+.
+.PP
+The input files may contain data from several locations, in which case you
+get several overlayed graphs.
+This is useful if you're really interested in another, nearby location:
+you're reminded of the inevitable errors involved.
 .
 .SH "OPTIONS"
 .
@@ -44,6 +60,11 @@ Print a brief help text and exit.
 .BP --version
 Print version information and exit.
 .
+.
+.SH "NOTES"
+.
+A week is defined as Monday\-Sunday, since that's how we think about
+weeks in Sweden nowadays.
 .
 .SH "AUTHOR"
 .
