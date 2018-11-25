@@ -184,13 +184,13 @@ WeekPlot::WeekPlot(std::ostream& os,
 	<< rect::thaw(temp)
 	<< rect::freeze(temp)
 	<< days{temp, wind}
-	<< temperature{temp}
-	<< border{temp, wind};
+	<< temperature{temp};
 }
 
 WeekPlot::~WeekPlot()
 {
-    xos << xml::end;
+    xos << border{temp, wind}
+	<< xml::end;
 }
 
 namespace {
@@ -207,7 +207,8 @@ namespace {
 
     void line(xml::ostream& xos, const Area& area,
 	      const Curves::Curve& curve,
-	      Curves::Selection selection)
+	      Curves::Selection selection,
+	      const char* color = "black")
     {
 	std::vector<std::pair<double, double>> s;
 	bool flatline = true;
@@ -223,7 +224,7 @@ namespace {
 
 	if(!flatline) {
 	    xos << xml::elem("polyline")
-		<< attr("stroke", "black") << attr("stroke-width", "1")
+		<< attr("stroke", color) << attr("stroke-width", "1")
 		<< attr("fill", "none")
 		<< line(s)
 		<< xml::end;
@@ -239,7 +240,7 @@ void WeekPlot::plot(const Week& week, Files& files)
 {
     for(const auto& curve: Curves{week, files, std::cerr}) {
 	line(xos, temp, curve, &Curves::Sample::temperature_air);
+	line(xos, wind, curve, &Curves::Sample::wind_force_max, "#808080");
 	line(xos, wind, curve, &Curves::Sample::wind_force);
-	line(xos, wind, curve, &Curves::Sample::wind_force_max);
     }
 }
