@@ -74,6 +74,14 @@ namespace {
 		       << xml::end;
 	}
 
+	xml::attr viewbox(const Rect& r)
+	{
+	    std::ostringstream oss;
+	    oss << r.x << ' ' << r.y << ' '
+		<< r.dim.width << ' ' << r.dim.height;
+	    return {"viewBox", oss.str()};
+	}
+
 	Rect total(const Area& a, const Area& b)
 	{
 	    return {0, a.offset,
@@ -178,6 +186,7 @@ WeekPlot::WeekPlot(std::ostream& os,
 {
     xos << xml::elem("svg")
 	<< xml::attr("xmlns", "http://www.w3.org/2000/svg")
+	<< viewbox(rect::total(temp, wind))
 	<< xml::attr("version", "1.1");
 
     xos << rect::total(temp, wind)
