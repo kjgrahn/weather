@@ -233,7 +233,9 @@ namespace {
 
 	if(!flatline) {
 	    xos << xml::elem("polyline")
-		<< attr("stroke", color) << attr("stroke-width", "1")
+		<< attr("stroke", color)
+		<< attr("stroke-width", "1")
+		<< attr("stroke-linejoin", "round")
 		<< attr("fill", "none")
 		<< line(s)
 		<< xml::end;
