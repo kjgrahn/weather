@@ -17,19 +17,21 @@ all: test/test
 weather: weather.o libweather.a
 	$(CXX) $(CXXFLAGS) -o $@ $< -L. -lweather -lxml2
 
-weather_week: weather_week.o libweather.a
-	$(CXX) $(CXXFLAGS) -o $@ $< -L. -lweather -lxml2
+weather_week: weather_week.o libweek.a
+	$(CXX) $(CXXFLAGS) -o $@ $< -L. -lweek -lxml2
 
 libweather.a: sample.o
 libweather.a: post.o
 libweather.a: socket.o
-libweather.a: week.o
-libweather.a: plot.o
-libweather.a: area.o
-libweather.a: curves.o
-libweather.a: value.o
-libweather.a: xml.o
-libweather.a: files...o
+	$(AR) -r $@ $^
+
+libweek.a: week.o
+libweek.a: plot.o
+libweek.a: area.o
+libweek.a: curves.o
+libweek.a: value.o
+libweek.a: xml.o
+libweek.a: files...o
 	$(AR) -r $@ $^
 
 # tests
@@ -40,8 +42,8 @@ check: test/test
 checkv: test/test
 	valgrind -q ./test/test -v
 
-test/test: test/test.o test/libtest.a libweather.a
-	$(CXX) $(CXXFLAGS) -o $@ test/test.o -Ltest/ -ltest -L. -lweather -lxml2
+test/test: test/test.o test/libtest.a libweather.a libweek.a
+	$(CXX) $(CXXFLAGS) -o $@ test/test.o -Ltest/ -ltest -L. -lweather -lweek -lxml2
 
 test/test.cc: test/libtest.a
 	orchis -o $@ $^
