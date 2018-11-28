@@ -204,14 +204,21 @@ WeekPlot::~WeekPlot()
 
 namespace {
 
+    /**
+     * Format the line as an SVG <path d=...> attribute
+     * M x y L x y x y ...
+     */
     xml::attr line(const std::vector<std::pair<double, double>>& v)
     {
-	std::string s;
-	for(const auto& p : v) {
-	    s += str(p.first) + ',' + str(p.second) + ' ';
+	auto i = begin(v);
+	std::string s = "M " + str(i->first) + ' ' + str(i->second) + " L";
+
+	i++;
+	while(i != end(v)) {
+	    s += ' ' + str(i->first) + ' ' + str(i->second);
+	    i++;
 	}
-	if(s.size()) s.pop_back();
-	return {"points", s};
+	return {"d", s};
     }
 
     void line(xml::ostream& xos, const Area& area,
@@ -232,7 +239,7 @@ namespace {
 	}
 
 	if(!flatline) {
-	    xos << xml::elem("polyline")
+	    xos << xml::elem("path")
 		<< attr("stroke", color)
 		<< attr("stroke-width", "1")
 		<< attr("stroke-linejoin", "round")
