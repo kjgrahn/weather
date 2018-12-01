@@ -3,7 +3,7 @@
 .IP \\fB\\$*
 ..
 .
-.TH weather 1 "OCT 2018" Weather "User Manuals"
+.TH weather 1 "DEC 2018" Weather "User Manuals"
 .SH "NAME"
 weather \- download Trafikverket weather station data
 .
@@ -19,6 +19,14 @@ weather \- download Trafikverket weather station data
 .I station
 .I file
 .br
+.B weather
+.B \-k
+.I key
+.B \-C
+.I dir
+.I station
+\&...
+.br
 .B weather --help
 .br
 .B weather --version
@@ -26,13 +34,31 @@ weather \- download Trafikverket weather station data
 .SH "DESCRIPTION"
 .
 .B weather
-downloads data from one of Trafikverket's weather stations,
-the one identified as
-.IR station ,
-and prints it to standard output, or appends it to
-.IR file ,
-in the format specified by
+downloads data for one or more of Trafikverket's weather stations
+and translates it to the format specified by
 .BR weather (5).
+There are three variations:
+.
+.IP \- 3x
+Download from
+.I station
+and print to standard output.
+.
+.IP \-
+Download from
+.I station
+and append to
+.IR file .
+.
+.IP \-
+Download from several listed stations
+.I station
+\&...
+and append to corresponding files
+.I dir/station
+\&...
+.
+.PP
 The data is one or more samples in time.
 More than one because the response typically contains five samples
 spaced ten minutes apart.
@@ -47,6 +73,9 @@ You also need to know the station identifier, like
 .
 .BP \-k\ \fIkey
 The API key.
+.
+.BP \-C\ \fIdir
+The directory to use when saving to file(s) named by station identifier.
 .
 .BP --help
 Print a brief help text and exit.

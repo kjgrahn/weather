@@ -92,6 +92,77 @@ namespace {
     }
 
     /**
+     * Perform the query and populate 'acc', while printing error
+     * messages to 'cerr'.  Returns success.
+     */
+    bool weather(std::unordered_map<std::string, Samples>& acc,
+		 std::ostream& cerr,
+		 const std::string& key,
+		 const std::vector<std::string>& stations)
+    {
+	const std::string host = "api.trafikinfo.trafikverket.se";
+
+	const addrinfo hints = tcp_client();
+	addrinfo* ais;
+	const int err = getaddrinfo(host.c_str(), "http", &hints, &ais);
+	if(err) {
+	    cerr << "error: '" << host << "': " << gai_strerror(err) << '\n';
+	    return false;
+	}
+
+	Socket fd {connect_one(ais)};
+	freeaddrinfo(ais);
+	if(fd.invalid()) {
+	    cerr << "error: '" << host << "': cannot connect: "
+		 << fd.error() << '\n';
+	    return false;
+	}
+
+	const auto req = post::req(host, key, stations);
+
+	if(!fd.write(req.data(), req.size())) {
+	    cerr << "error: request failed: " << fd.error() << '\n';
+	    return false;
+	}
+
+	auto s = fd.read();
+	if(s.empty()) {
+	    cerr << "error: read failure: " << fd.error() << '\n';
+	    return false;
+	}
+
+	const post::Response resp {s};
+	if(!resp.success()) {
+	    cerr << "error: " << resp.status_line << '\n';
+	    return false;
+	}
+
+	acc = parse(resp.body);
+	if(acc.empty()) {
+	    cerr << "error: no valid weather data in the HTTP response\n";
+	    return false;
+	}
+
+	for(const auto& station: stations) {
+	    if(acc.find(station) == end(acc)) {
+		cerr << "warning: no valid weather data from '"
+		     << station << "'\n";
+	    }
+	}
+
+	return true;
+    }
+
+    bool weather(std::unordered_map<std::string, Samples>& acc,
+		 std::ostream& cerr,
+		 const std::string& key,
+		 const std::string& station)
+    {
+	const std::vector<std::string> stations {station};
+	return weather(acc, cerr, key, stations);
+    }
+
+    /**
      * Fetch the data and print it to 'os' (with an optional prefix
      * separating it from earlier entries in the file).  Returns an
      * exit code, and may print error messages to stderr.
@@ -100,54 +171,24 @@ namespace {
 		const std::string& key,
 		const std::string& station)
     {
-	auto& cerr = std::cerr;
-	const std::string host = "api.trafikinfo.trafikverket.se";
+	std::unordered_map<std::string, Samples> samples;
+	if(!weather(samples, std::cerr, key, station)) return 1;
 
-	const addrinfo hints = tcp_client();
-	addrinfo* ais;
-	const int err = getaddrinfo(host.c_str(), "http", &hints, &ais);
-	if(err) {
-	    cerr << "error: '" << host << "': " << gai_strerror(err) << '\n';
+	const auto& series = samples[station];
+	if(series.empty()) {
+	    std::cerr << "error: response contained no data for '"
+		      << station << "'\n";
 	    return 1;
 	}
 
-	Socket fd {connect_one(ais)};
-	freeaddrinfo(ais);
-	if(fd.invalid()) {
-	    cerr << "error: '" << host << "': cannot connect: "
-		 << fd.error() << '\n';
-	    return 1;
-	}
-
-	const auto req = post::req(host, key, {station});
-
-	if(!fd.write(req.data(), req.size())) {
-	    cerr << "error: request failed: " << fd.error() << '\n';
-	    return 1;
-	}
-
-	auto s = fd.read();
-	if(s.empty()) {
-	    cerr << "error: read failure: " << fd.error() << '\n';
-	    return 1;
-	}
-
-	const post::Response resp {s};
-	if(!resp.success()) {
-	    cerr << "error: " << resp.status_line << '\n';
-	    return 1;
-	}
-
-	const auto samples = parse(resp.body);
-	if(samples.empty()) {
-	    cerr << "error: no valid weather data in the HTTP response\n";
-	    return 1;
-	}
-
-	render(os, prefix, samples);
+	render(os, prefix, series);
 	return 0;
     }
 
+    /**
+     * Fetch the data for 'station' and either append it to 'file' or
+     * print it to stdout.  Return an exit code.
+     */
     int weather(const std::string& key,
 		const std::string& station,
 		const std::string& file)
@@ -161,6 +202,32 @@ namespace {
 	}
 	return weather(os, "\n", key, station);
     }
+
+    /**
+     * Fetch the data for stations a, b, c ... and append it to dir/a,
+     * dir/b, dir/c ... Return an exit code.
+     */
+    int weather(const std::string& key,
+		const std::string& dir,
+		const std::vector<std::string>& stations)
+    {
+	std::unordered_map<std::string, Samples> samples;
+	if(!weather(samples, std::cerr, key, stations)) return 1;
+
+	auto path = [&dir] (const std::string& station) {
+			return dir + "/" + station;
+		    };
+
+	for(const auto& val: samples) {
+	    const auto& station = val.first;
+	    const auto& series = val.second;
+
+	    std::ofstream os(path(station), std::ios::app);
+	    render(os, "\n", series);
+	    os.close();
+	}
+	return 0;
+    }
 }
 
 
@@ -172,10 +239,12 @@ int main(int argc, char ** argv)
 	"       "
 	+ prog + " -k key station file\n"
 	"       "
+	+ prog + " -k key -C dir station ...\n"
+	"       "
 	+ prog + " --help\n"
 	"       "
 	+ prog + " --version";
-    const char optstring[] = "k:";
+    const char optstring[] = "k:C:";
     const struct option long_options[] = {
 	{"help", 0, 0, 'H'},
 	{"version", 0, 0, 'V'},
@@ -186,6 +255,7 @@ int main(int argc, char ** argv)
     std::cout.sync_with_stdio(false);
 
     std::string key;
+    std::string dir;
 
     int ch;
     while((ch = getopt_long(argc, argv,
@@ -194,6 +264,9 @@ int main(int argc, char ** argv)
 	switch(ch) {
 	case 'k':
 	    key = optarg;
+	    break;
+	case 'C':
+	    dir = optarg;
 	    break;
 	case 'H':
 	    std::cout << usage << '\n';
@@ -220,19 +293,28 @@ int main(int argc, char ** argv)
 	return 1;
     }
 
-    const std::vector<const char*> args {argv+optind, argv+argc};
-    std::string station;
-    std::string file;
-    switch(args.size()) {
-    case 0:
-    default:
+    const std::vector<std::string> args {argv+optind, argv+argc};
+    if(args.empty()) {
 	std::cerr << usage << '\n';
 	return 1;
-    case 2:
-	file = args[1];
-    case 1:
-	station = args[0];
     }
 
-    return weather(key, station, file);
+    if(dir.empty()) {
+	std::string station;
+	std::string file;
+	switch(args.size()) {
+	default:
+	    std::cerr << usage << '\n';
+	    return 1;
+	case 2:
+	    file = args[1];
+	case 1:
+	    station = args[0];
+	}
+
+	return weather(key, station, file);
+    }
+    else {
+	return weather(key, dir, args);
+    }
 }
