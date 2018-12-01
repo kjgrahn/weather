@@ -1,8 +1,0 @@
-<request>
-  <login authenticationkey='cd03b43fe70c465185880b37cbde59c8' />
-  <query objecttype='WeatherStation' limit='10'>
-    <filter>
-      <eq name='Id' value='SE_STA_VVIS1617' />
-    </filter>
-  </query>
-</request>

@@ -63,6 +63,24 @@ The full response from the server is not preserved, only the data
 which maps to
 .BR weather (5).
 .
+.ig
+  The downloading part is more or less equivalent to:
+
+  <?xml version='1.0' encoding='utf-8' ?>
+  <request>
+    <login authenticationkey='...' />
+    <query objecttype='WeatherStation' limit='2'>
+      <filter>
+        <eq name='Id' value='SE_STA_VVIS1617' />
+      </filter>
+    </query>
+  </request>
+
+  % curl -fL --data-binary @post -H 'Content-Type: application/xml' \
+    http://api.trafikinfo.trafikverket.se/v1.3/data.xml | \
+    xmllint -format -
+..
+.
 .SH "AUTHOR"
 .
 J\(:orgen Grahn
