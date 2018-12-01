@@ -21,6 +21,7 @@ weather_week: weather_week.o libweek.a
 	$(CXX) $(CXXFLAGS) -o $@ $< -L. -lweek -lxml2
 
 libweather.a: sample.o
+libweather.a: render.o
 libweather.a: post.o
 libweather.a: socket.o
 	$(AR) -r $@ $^
