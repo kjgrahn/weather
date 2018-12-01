@@ -214,6 +214,12 @@ int main(int argc, char ** argv)
 	}
     }
 
+    if(key.empty()) {
+	std::cerr << "error: required argument missing\n"
+		  << usage << '\n';
+	return 1;
+    }
+
     const std::vector<const char*> args {argv+optind, argv+argc};
     std::string station;
     std::string file;
