@@ -119,7 +119,7 @@ namespace {
 	    return 1;
 	}
 
-	const auto req = post::req(host, key, station);
+	const auto req = post::req(host, key, {station});
 
 	if(!fd.write(req.data(), req.size())) {
 	    cerr << "error: request failed: " << fd.error() << '\n';

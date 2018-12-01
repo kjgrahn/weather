@@ -29,6 +29,20 @@
 #include <algorithm>
 #include <sstream>
 
+namespace {
+    template <class C>
+    std::string join(const C& cont)
+    {
+	std::ostringstream oss;
+	const char* sep = "";
+	for(const auto& val: cont) {
+	    oss << sep << val;
+	    sep = ", ";
+	}
+	return oss.str();
+    }
+}
+
 
 /**
  * Form a post request suitable for asking for weather data, something
@@ -50,19 +64,28 @@
  *         </filter>
  *       </query>
  *     </request>
+ *
+ * <in> can be used instead of <eq> to match several values; we do this
+ * when asking for data from multiple stations.
  */
 std::string post::req(const std::string& host,
 		      const std::string& key,
-		      const std::string& station)
+		      const std::vector<std::string>& stations)
 {
     std::ostringstream body;
     body << "<?xml version='1.0' encoding='utf-8' ?>\n"
 	 << "<request>\n"
 	 << "  <login authenticationkey='" << key << "' />\n"
-	 << "  <query objecttype='WeatherStation' limit='1'>\n"
-	 << "  <filter>\n"
-	 << "    <eq name='Id' value='" << station << "' />\n"
-	 << "  </filter>\n"
+	 << "  <query objecttype='WeatherStation' limit='" << stations.size() << "'>\n"
+	 << "  <filter>\n";
+    if(stations.size()==1) {
+	const auto& station = stations.front();
+	body << "    <eq name='Id' value='" << station << "' />\n";
+    }
+    else {
+	body << "    <in name='Id' value='" << join(stations) << "' />\n";
+    }
+    body << "  </filter>\n"
 	 << "  </query>\n"
 	 << "</request>";
 
