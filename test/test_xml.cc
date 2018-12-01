@@ -2,14 +2,11 @@
 
 #include <orchis.h>
 
-namespace xml {
-
-    void plain(orchis::TC)
+namespace {
+    std::string station(const char* name)
     {
-	const std::string doc = "<?xml version='1.0'?>"
-	    "<RESPONSE>"
-	    "  <RESULT>"
-	    "    <WeatherStation>"
+	std::string s;
+	s += "    <WeatherStation>"
 	    "      <Active>true</Active>"
 	    "      <CountyNo>14</CountyNo>"
 	    "      <Geometry>"
@@ -17,7 +14,9 @@ namespace xml {
 	    "        <WGS84>POINT (13.58180046081543 58.158058166503906)</WGS84>"
 	    "      </Geometry>"
 	    "      <IconId>weatherStation</IconId>"
-	    "      <Id>SE_STA_VVIS1617</Id>"
+	    "      <Id>";
+	s += name;
+	s += "</Id>"
 	    "      <Measurement>"
 	    "        <MeasureTime>2018-09-27T00:30:00</MeasureTime>"
 	    "        <Precipitation>"
@@ -69,7 +68,18 @@ namespace xml {
 	    "      <ModifiedTime>2018-09-26T22:35:13.009Z</ModifiedTime>"
 	    "      <Name>Falk&#xF6;ping</Name>"
 	    "      <RoadNumberNumeric>47</RoadNumberNumeric>"
-	    "    </WeatherStation>"
+	    "    </WeatherStation>";
+	return s;
+    }
+}
+
+namespace xml {
+
+    void plain(orchis::TC)
+    {
+	const std::string doc = "<?xml version='1.0'?>"
+	    "<RESPONSE>"
+	    "  <RESULT>" + station("SE_STA_VVIS1617") +
 	    "  </RESULT>"
 	    "</RESPONSE>";
 
