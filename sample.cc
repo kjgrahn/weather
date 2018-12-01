@@ -74,67 +74,75 @@ namespace {
 	return {nsv.nodeTab, nsv.nodeTab + nsv.nodeNr};
     }
 
-    std::vector<xml::Node*> nodes(const xml::Node& node)
+    const char* content(xml::Node* node)
     {
-	std::vector<xml::Node*> acc;
-	for(auto p = node.children; p!=node.last; p = p->next) {
-	    acc.push_back(p);
-	}
-	return acc;
+	return cast(xmlNodeGetContent(node));
     }
 
     void nop(void*, const char*, ...) {}
 
     /**
-     * Parse the /Response/Result/WeatherStation XML document to a
-     * vector of Samples.  Multiple samples with the same timestamp
-     * are discarded. Parse errors cause an empty vector to be
+     * Parse the /Response/Result XML document to a map
+     * Station -> vector of Samples.
+     *
+     * /Response/Result contains 0..N <WeatherStation>s, each with a
+     * distinct <Id> and 0..N <Measurement> and <MeasurementHistory>
+     * elements, which are the samples.
+     *
+     * Multiple samples with the same timestamp are discarded. Parse
+     * errors cause an empty map, or a map with absent stations, to be
      * returned.
      */
-    std::vector<Sample> parse(xml::Doc* doc)
+    std::unordered_map<std::string,
+		       Samples> parse(xml::Doc* doc)
     {
 	xmlSetGenericErrorFunc(nullptr, nop);
 
-	std::vector<Sample> acc;
+	std::unordered_map<std::string, Samples> acc;
 
 	xml::xpath::Ctx* ctx = xmlXPathNewContext(doc);
 
-	std::unordered_set<std::string> times;
-	auto seen = [&times] (const std::string& t) {
-	    auto it = times.find(t);
-	    if(it!=end(times)) return true;
-	    times.insert(t);
-	    return false;
-	};
+	xml::xpath::Obj* const id_match = eval(ctx, "/RESPONSE/RESULT/WeatherStation/Id");
+	for(xml::Node* id_node : nodes(id_match)) {
 
-	xml::xpath::Obj* const match = eval(ctx, "/RESPONSE/RESULT/WeatherStation/*[MeasureTime]");
-	for(xml::Node* measurement : nodes(match)) {
+	    std::unordered_set<std::string> times;
+	    auto seen = [&times] (const std::string& t) {
+			    auto it = times.find(t);
+			    if(it!=end(times)) return true;
+			    times.insert(t);
+			    return false;
+			};
 
-	    Sample sample;
+	    const std::string station = content(id_node);
 
-	    auto get = [ctx, measurement] (const char* expr) {
-		auto match = eval(ctx, measurement, expr);
-		auto nn = nodes(match);
-		if (nn.size() != 1) return "";
-		return cast(xmlNodeGetContent(nn.front()));
-	    };
-	    auto set = [get, &sample] (const char* name,
-				       const char* expr) {
-		std::string val = get(expr);
-		if (val.size()) sample.data[name] = val;
-	    };
+	    auto meas_match = eval(ctx, id_node->parent, "./*[MeasureTime]");
+	    for(auto measurement: nodes(meas_match)) {
+		Sample sample;
 
-	    sample.time = get("MeasureTime");
-	    if(seen(sample.time)) continue;
+		auto get = [ctx, measurement] (const char* expr) {
+			       auto match = eval(ctx, measurement, expr);
+			       auto nn = nodes(match);
+			       if (nn.size() != 1) return "";
+			       return content(nn.front());
+			   };
+		auto set = [get, &sample] (const char* name,
+					   const char* expr) {
+			       std::string val = get(expr);
+			       if (val.size()) sample.data[name] = val;
+			   };
 
-	    set("temperature.road", "Road/Temp");
-	    set("temperature.air",  "Air/Temp");
-	    set("humidity",         "Air/RelativeHumidity");
-	    set("wind.direction",   "Wind/Direction");
-	    set("wind.force",       "Wind/Force");
-	    set("wind.force.max",   "Wind/ForceMax");
+		sample.time = get("MeasureTime");
+		if(seen(sample.time)) continue;
 
-	    acc.push_back(sample);
+		set("temperature.road", "Road/Temp");
+		set("temperature.air",  "Air/Temp");
+		set("humidity",         "Air/RelativeHumidity");
+		set("wind.direction",   "Wind/Direction");
+		set("wind.force",       "Wind/Force");
+		set("wind.force.max",   "Wind/ForceMax");
+
+		acc[station].push_back(sample);
+	    }
 	}
 
 	xmlXPathFreeContext(ctx);
@@ -143,7 +151,8 @@ namespace {
 }
 
 
-std::vector<Sample> parse(const std::string& buf)
+std::unordered_map<std::string,
+		   Samples> parse(const std::string& buf)
 {
     xml::Doc* doc = xmlParseMemory(buf.data(), buf.size());
     if(!doc) return {};

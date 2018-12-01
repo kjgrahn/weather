@@ -48,9 +48,10 @@ public:
 
 std::ostream& operator<< (std::ostream& os, const Sample& val);
 
-std::vector<Sample> parse(const std::string& buf);
+using Samples = std::vector<Sample>;
 
-void render(std::ostream& os, const char* prefix,
-	    std::vector<Sample> samples);
+std::unordered_map<std::string, Samples> parse(const std::string& buf);
+
+void render(std::ostream& os, const char* prefix, Samples samples);
 
 #endif

@@ -55,7 +55,7 @@ std::ostream& operator<< (std::ostream& os, const Sample& val)
  * 'prefix'.
  */
 void render(std::ostream& os, const char* prefix,
-	    std::vector<Sample> samples)
+	    Samples samples)
 {
     std::sort(begin(samples), end(samples));
 

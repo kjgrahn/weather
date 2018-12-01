@@ -83,11 +83,47 @@ namespace xml {
 	    "  </RESULT>"
 	    "</RESPONSE>";
 
-	const auto samples = parse(doc);
-	orchis::assert_eq(samples.size(), 2);
+	auto samples = parse(doc);
+	orchis::assert_eq(samples.size(), 1);
+
+	const auto& series = samples["SE_STA_VVIS1617"];
 
 	{
-	    Sample s = samples[0];
+	    orchis::assert_eq(series.size(), 2);
+	    Sample s = series[0];
+	    auto assert_val = [&s] (const char* name, const char* val) {
+				  orchis::assert_eq(s.data[name], val);
+			      };
+
+	    orchis::assert_eq(s.time, "2018-09-27T00:30:00");
+	    assert_val("temperature.road", "9.3");
+	    assert_val("temperature.air",  "10.9");
+	    assert_val("wind.direction",   "270");
+	    assert_val("wind.force",       "7.4");
+	    assert_val("wind.force.max",   "12.6");
+	    assert_val("humidity",         "78.8");
+	}
+    }
+
+    void three_stations(orchis::TC)
+    {
+	const std::string doc = "<?xml version='1.0'?>"
+	    "<RESPONSE>"
+	    "  <RESULT>" + station("foo") + station("bar") +station("baz") +
+	    "  </RESULT>"
+	    "</RESPONSE>";
+
+	const auto samples = parse(doc);
+	orchis::assert_eq(samples.count("foo"), 1);
+	orchis::assert_eq(samples.count("bar"), 1);
+	orchis::assert_eq(samples.count("baz"), 1);
+	orchis::assert_eq(samples.size(), 3);
+
+	for(const auto& val : samples) {
+	    const auto& series = val.second;
+
+	    orchis::assert_eq(series.size(), 2);
+	    Sample s = series[0];
 	    auto assert_val = [&s] (const char* name, const char* val) {
 				  orchis::assert_eq(s.data[name], val);
 			      };
