@@ -59,7 +59,7 @@ namespace {
     timeval tv_of(double seconds)
     {
 	time_t s = seconds;
-	return {s, (seconds-s)*1e6 };
+	return {s, suseconds_t((seconds-s)*1e6) };
     }
 
     /**
