@@ -29,6 +29,7 @@
 #include <fstream>
 #include <vector>
 #include <cstring>
+#include <cstdlib>
 #include <ctime>
 
 #include <getopt.h>
@@ -43,6 +44,11 @@ namespace {
     std::time_t now()
     {
 	return std::time(nullptr);
+    }
+
+    void back(Week& week, unsigned n)
+    {
+	while(n--) week = week.prev();
     }
 
     /**
@@ -76,12 +82,12 @@ int main(int argc, char ** argv)
 {
     const std::string prog = argv[0];
     const std::string usage = std::string("usage: ")
-	+ prog + " [-o image-file] file ...\n"
+	+ prog + " [-p N] [-o image-file] file ...\n"
 	"       "
 	+ prog + " --help\n"
 	"       "
 	+ prog + " --version";
-    const char optstring[] = "o:";
+    const char optstring[] = "p:o:";
     const struct option long_options[] = {
 	{"help", 0, 0, 'H'},
 	{"version", 0, 0, 'V'},
@@ -92,13 +98,16 @@ int main(int argc, char ** argv)
     std::cout.sync_with_stdio(false);
 
     std::string image_name;
-    const Week when {now()};
+    Week when {now()};
 
     int ch;
     while((ch = getopt_long(argc, argv,
 			    optstring,
 			    &long_options[0], 0)) != -1) {
 	switch(ch) {
+	case 'p':
+	    back(when, std::strtoul(optarg, nullptr, 10));
+	    break;
 	case 'o':
 	    image_name = optarg;
 	    break;
