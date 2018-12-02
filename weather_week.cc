@@ -113,10 +113,9 @@ int main(int argc, char ** argv)
 	    break;
 	case ':':
 	case '?':
+	default:
 	    std::cerr << usage << '\n';
 	    return 1;
-	    break;
-	default:
 	    break;
 	}
     }
