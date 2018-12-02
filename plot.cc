@@ -27,6 +27,7 @@
 #include "plot.h"
 
 #include "curves.h"
+#include "groups.h"
 #include "files...h"
 
 namespace {
@@ -204,20 +205,48 @@ WeekPlot::~WeekPlot()
 
 namespace {
 
-    /**
-     * Format the line as an SVG <path d=...> attribute
-     * M x y L x y x y ...
-     */
-    xml::attr line(const std::vector<std::pair<double, double>>& v)
+    template <class Iter>
+    std::string line(const Iter begin, const Iter end)
     {
-	auto i = begin(v);
+	auto i = begin;
 	std::string s = "M " + str(i->first) + ' ' + str(i->second) + " L";
 
 	i++;
-	while(i != end(v)) {
+	while(i != end) {
 	    s += ' ' + str(i->first) + ' ' + str(i->second);
 	    i++;
 	}
+	return s;
+    }
+
+    /**
+     * Format the line as an SVG <path d=...> attribute. The line may
+     * contain holes (if an hour of samples are missing, or if there's
+     * backtracking).
+     *
+     *   M x y L x y x y ...
+     *   M x y L x y x y ...
+     *   ...
+     */
+    template <class Iter>
+    xml::attr line(const double hour, Iter begin, const Iter end)
+    {
+	auto hole = [hour] (std::pair<double, double> a,
+			    std::pair<double, double> b) {
+			auto t0 = a.first;
+			auto t1 = b.first;
+			return t1 <= t0 || t0 + hour < t1;
+		    };
+	std::string s;
+
+	while(begin != end) {
+	    auto a = pop_group(begin, end, hole);
+	    if(std::distance(a, begin) < 2) continue;
+
+	    s += line(a, begin);
+	    s += '\n';
+	}
+	if(s.size()) s.pop_back();
 	return {"d", s};
     }
 
@@ -239,12 +268,15 @@ namespace {
 	}
 
 	if(!flatline) {
+
+	    const double hour = area.xscale(1.0/7/24);
+
 	    xos << xml::elem("path")
 		<< attr("stroke", color)
 		<< attr("stroke-width", "1")
 		<< attr("stroke-linejoin", "round")
 		<< attr("fill", "none")
-		<< line(s)
+		<< line(hour, begin(s), end(s))
 		<< xml::end;
 	}
     }
