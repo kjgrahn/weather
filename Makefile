@@ -53,6 +53,7 @@ test/libtest.a: test/test_xml.o
 test/libtest.a: test/test_week.o
 test/libtest.a: test/test_curves.o
 test/libtest.a: test/test_value.o
+test/libtest.a: test/test_groups.o
 test/libtest.a: test/test_xmlwrite.o
 test/libtest.a: test/test_files.o
 	$(AR) -r $@ $^
