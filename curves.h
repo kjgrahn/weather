@@ -53,6 +53,10 @@ public:
 	Value wind_force;
 	Value wind_force_max;
 	bool operator< (const Sample& other) const { return t < other.t; }
+
+	bool empty() const { return !temperature_air &&
+				    !wind_force &&
+				    !wind_force_max; }
     };
 
     using Selection = decltype(&Sample::wind_force);

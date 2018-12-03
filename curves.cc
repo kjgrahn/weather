@@ -132,4 +132,10 @@ Curves::Curves(const Week& week, Files& files, std::ostream& err)
 	    cur->wind_force_max = {e, b};
 	}
     }
+
+    for(auto& curve : val) {
+	auto e = std::remove_if(std::begin(curve), std::end(curve),
+				[] (Sample s) { return s.empty(); });
+	curve.erase(e, std::end(curve));
+    }
 }

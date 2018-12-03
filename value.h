@@ -51,6 +51,7 @@ public:
     bool operator== (Value other) const { return repr==other.repr; }
     bool operator!= (Value other) const { return repr!=other.repr; }
     bool operator< (Value other) const  { return repr < other.repr; }
+    bool operator! () const { return !repr; }
 
     std::ostream& put(std::ostream& os) const;
 
