@@ -146,17 +146,25 @@ namespace {
      * A single black border around some areas.
      */
     struct border {
-	const Area a;
-	const Area b;
+	explicit border(const Area& a)
+	    : offset{a.offset},
+	      dim{a.dim}
+	{}
+	border(const Area& a, const Area& b)
+	    : offset{a.offset},
+	      dim{a.dim.width, a.dim.height + b.dim.height}
+	{}
+	const unsigned offset;
+	const Dimensions dim;
     };
 
     xml::ostream& operator<< (xml::ostream& xos, const border& val)
     {
 	xos << xml::elem("rect")
 	    << attr("x", 0)
-	    << attr("y", val.a.offset)
-	    << attr("width",  val.a.dim.width)
-	    << attr("height", val.a.dim.height + val.b.dim.height)
+	    << attr("y", val.offset)
+	    << attr("width",  val.dim.width)
+	    << attr("height", val.dim.height)
 	    << attr("fill", "none")
 	    << attr("stroke", "black")
 	    << attr("stroke-width", 1)
@@ -211,7 +219,9 @@ WeekPlot::WeekPlot(std::ostream& os,
 
 WeekPlot::~WeekPlot()
 {
-    xos << border{temp, wind}
+    xos << border{temp}
+	<< border{wind}
+	<< border{temp, wind}
 	<< xml::end;
 }
 
