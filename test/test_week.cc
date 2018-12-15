@@ -9,7 +9,7 @@ namespace {
     /* Wed 2019-07-03 CEST */
     const std::time_t july = 1562104800;
 
-    void assert_fmt(const Week& w, const char* ref)
+    void assert_fmt(const Week& w, const std::string& ref)
     {
 	std::ostringstream oss;
 	oss << w;
@@ -99,10 +99,12 @@ namespace week {
 
     void format(orchis::TC)
     {
-	assert_fmt(Week{wed},          "15-21.10.2018");
+	const std::string dash = "\xe2\x80\x93";
 
-	assert_fmt(Week{"2018-04-09"}, "9-15.4.2018");
-	assert_fmt(Week{"2018-04-30"}, "30.4-6.5.2018");
-	assert_fmt(Week{"2019-01-01"}, "31.12.2018-6.1.2019");
+	assert_fmt(Week{wed},          "15" + dash + "21.10.2018");
+
+	assert_fmt(Week{"2018-04-09"}, "9" + dash + "15.4.2018");
+	assert_fmt(Week{"2018-04-30"}, "30.4" + dash + "6.5.2018");
+	assert_fmt(Week{"2019-01-01"}, "31.12.2018" + dash + "6.1.2019");
     }
 }

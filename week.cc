@@ -150,24 +150,25 @@ std::string Week::sunday() const
  */
 std::ostream& Week::put(std::ostream& os) const
 {
+    const char dash[] = "\xe2\x80\x93";
     const std::tm mon = *localtime(&begin);
     const auto pend = end - 1;
     const std::tm sun = *localtime(&pend);
 
     if(mon.tm_mon == sun.tm_mon) {
-	os << mon.tm_mday << '-'
+	os << mon.tm_mday << dash
 	   << sun.tm_mday << '.'
 	   << sun.tm_mon + 1 << '.' << sun.tm_year + 1900;
     }
     else if(mon.tm_year == sun.tm_year) {
-	os << mon.tm_mday << '.' << mon.tm_mon + 1 << '-'
+	os << mon.tm_mday << '.' << mon.tm_mon + 1 << dash
 	   << sun.tm_mday << '.' << sun.tm_mon + 1 << '.'
 	   << sun.tm_year + 1900;
     }
     else {
 	os << mon.tm_mday << '.' << mon.tm_mon + 1 << '.'
 	   << mon.tm_year + 1900
-	   << '-'
+	   << dash
 	   << sun.tm_mday << '.' << sun.tm_mon + 1 << '.'
 	   << sun.tm_year + 1900;
     }
