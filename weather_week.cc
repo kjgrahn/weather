@@ -59,7 +59,7 @@ namespace {
     {
 	const Area temperature{{-20, +30}, {700, 200}};
 	const Area wind{temperature, {0, 20}, 50};
-	WeekPlot plot{os, temperature, wind};
+	WeekPlot plot{os, when, temperature, wind};
 	plot.plot(when, files);
 	return 0;
     }

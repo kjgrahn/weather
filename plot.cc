@@ -26,6 +26,7 @@
  */
 #include "plot.h"
 
+#include "week.h"
 #include "curves.h"
 #include "groups.h"
 #include "files...h"
@@ -195,10 +196,35 @@ namespace {
 	}
 	return xos;
     }
+
+    /**
+     * The week rendered as text in an area.
+     */
+    struct daterange {
+	Week week;
+	Area a;
+    };
+
+    xml::ostream& operator<< (xml::ostream& xos, const daterange& val)
+    {
+	xos << xml::elem("text")
+	    << attr("font-family", "serif")
+	    << attr("font-weight", "bold")
+	    << attr("font-style", "italic")
+	    << attr("opacity", ".1")
+	    << attr("font-size", "60")
+	    << attr("text-anchor", "middle")
+	    << attr("x", val.a.dim.width/2)
+	    << attr("y", val.a.dim.height/2 + 60/2)
+	    << val.week
+	    << xml::end;
+	return xos;
+    }
 }
 
 
 WeekPlot::WeekPlot(std::ostream& os,
+		   const Week& week,
 		   const Area& temp,
 		   const Area& wind)
     : xos{os},
@@ -213,6 +239,7 @@ WeekPlot::WeekPlot(std::ostream& os,
     xos << rect::total(temp, wind)
 	<< rect::thaw(temp)
 	<< rect::freeze(temp)
+	<< daterange{week, temp}
 	<< days{temp, wind}
 	<< temperature{temp};
 }

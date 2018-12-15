@@ -60,6 +60,7 @@ class Files;
 class WeekPlot {
 public:
     WeekPlot(std::ostream& os,
+	     const Week&,
 	     const Area& temp,
 	     const Area& wind);
     ~WeekPlot();
