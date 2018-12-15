@@ -55,6 +55,9 @@ namespace {
 	return {"points", s};
     }
 
+    /**
+     * Filled rectangles.
+     */
     namespace rect {
 
 	struct Rect {
@@ -107,6 +110,9 @@ namespace {
 	}
     }
 
+    /**
+     * Borders between weekdays, and shaded Saturday--Sunday.
+     */
     struct days {
 	const Area a;
 	const Area b;
@@ -136,6 +142,9 @@ namespace {
 	return xos;
     }
 
+    /**
+     * A single black border around some areas.
+     */
     struct border {
 	const Area a;
 	const Area b;
@@ -155,6 +164,9 @@ namespace {
 	return xos;
     }
 
+    /**
+     * Temperature scale in an area: -10, 0, +10, ...
+     */
     struct temperature {
 	const Area a;
     };
