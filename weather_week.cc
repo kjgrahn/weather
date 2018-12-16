@@ -106,7 +106,13 @@ int main(int argc, char ** argv)
 			    &long_options[0], 0)) != -1) {
 	switch(ch) {
 	case 'p':
-	    back(when, std::strtoul(optarg, nullptr, 10));
+	    char* end;
+	    back(when, std::strtoul(optarg, &end, 10));
+	    if(end==optarg || *end) {
+		std::cerr << "error: incorrect -p argument\n"
+			  << usage << '\n';
+		return 1;
+	    }
 	    break;
 	case 'o':
 	    image_name = optarg;
