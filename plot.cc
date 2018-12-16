@@ -85,7 +85,7 @@ namespace {
 	{
 	    std::ostringstream oss;
 	    oss << r.x << ' ' << r.y << ' '
-		<< r.dim.width << ' ' << r.dim.height;
+		<< r.dim.width + 40 << ' ' << r.dim.height;
 	    return {"viewBox", oss.str()};
 	}
 
@@ -204,6 +204,27 @@ namespace {
 		<< line(0, y, a.dim.width, y)
 		<< xml::end;
 	}
+
+	xos << xml::elem("text")
+	    << attr("font-family", "sans-serif")
+	    << attr("font-size", 12)
+	    << attr("fill", "black");
+
+	auto tick = [&xos] (unsigned y, const std::string& s) {
+	    const char deg[] = "\xc2\xb0";
+	    xos << xml::elem("tspan")
+	    << attr("x", 700)
+	    << attr("y", y)
+	    << s + deg
+	    << xml::end;
+	};
+	tick( 44, "+20");
+	tick( 84, "+10");
+	tick(124, "\xc2\xa0\xc2\xa0" "0");
+	tick(164, "\xe2\x80\x93" "10");
+	tick(204, "\xe2\x80\x93" "20");
+	xos << xml::end;
+
 	return xos;
     }
 
