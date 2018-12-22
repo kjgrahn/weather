@@ -30,6 +30,8 @@
 
 #include "value.h"
 
+#include <iostream>
+
 /**
  * Some kind of dead reckoning: given a sequence of numbers a, b, c,
  * ...  emit a, b-a, c-b, ... in low resolution, but do so without
@@ -55,5 +57,40 @@ public:
 private:
     double paintend;
 };
+
+
+class PathFormat {
+public:
+    PathFormat(std::ostream& os,
+	       const std::pair<double, double>& xy);
+    void add(const std::pair<double, double>& xy);
+
+private:
+    std::ostream& os;
+    char cmd = 'M';
+    unsigned short n = 0;
+    Reckon rx;
+    Reckon ry;
+};
+
+
+/**
+ * Given a sequence of (x, y) coordinates, apply class Reckon to
+ * generate a SVG <path d=...> attribute string with relative
+ * movements.
+ *
+ * Undefined results if the sequence is empty.
+ */
+template <class Iter>
+std::ostream& reckon(std::ostream& os, Iter begin, const Iter end)
+{
+    PathFormat pf(os, *begin++);
+
+    while(begin != end) {
+	pf.add(*begin++);
+    }
+
+    return os;
+}
 
 #endif

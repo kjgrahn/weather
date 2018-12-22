@@ -39,3 +39,26 @@ Value Reckon::moveto(double n)
     paintend += delta.value();
     return delta;
 }
+
+PathFormat::PathFormat(std::ostream& os,
+		       const std::pair<double, double>& xy)
+    : os{os}
+{
+    const double x = xy.first;
+    const double y = xy.second;
+    os << cmd << rx.start(x) << ' ' << ry.start(y) << ' ';
+    cmd = 'l';
+}
+
+void PathFormat::add(const std::pair<double, double>& xy)
+{
+    n++;
+    if(n == 10) {
+	cmd = '\n';
+	n = 0;
+    }
+    const double x = xy.first;
+    const double y = xy.second;
+    os << cmd << rx.moveto(x) << ' ' << ry.moveto(y);
+    cmd = ' ';
+}

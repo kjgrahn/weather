@@ -28,6 +28,7 @@
 
 #include "week.h"
 #include "curves.h"
+#include "reckon.h"
 #include "groups.h"
 #include "files...h"
 
@@ -254,20 +255,6 @@ WeekPlot::~WeekPlot()
 
 namespace {
 
-    template <class Iter>
-    std::string line(const Iter begin, const Iter end)
-    {
-	auto i = begin;
-	std::string s = "M " + str(i->first) + ' ' + str(i->second) + " L";
-
-	i++;
-	while(i != end) {
-	    s += ' ' + str(i->first) + ' ' + str(i->second);
-	    i++;
-	}
-	return s;
-    }
-
     /**
      * Format the line as an SVG <path d=...> attribute. The line may
      * contain holes (if an hour of samples are missing, or if there's
@@ -286,15 +273,15 @@ namespace {
 			auto t1 = b.first;
 			return t1 <= t0 || t0 + hour < t1;
 		    };
-	std::string s;
+	std::ostringstream ss;
 
 	while(begin != end) {
 	    auto a = pop_group(begin, end, hole);
 	    if(std::distance(a, begin) < 2) continue;
 
-	    s += line(a, begin);
-	    s += '\n';
+	    reckon(ss, a, begin) << '\n';
 	}
+	std::string s = ss.str();
 	if(s.size()) s.pop_back();
 	return {"d", s};
     }
