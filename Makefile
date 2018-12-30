@@ -18,7 +18,7 @@ weather: weather.o libweather.a
 	$(CXX) $(CXXFLAGS) -o $@ $< -L. -lweather -lxml2
 
 weather_week: weather_week.o libweek.a
-	$(CXX) $(CXXFLAGS) -o $@ $< -L. -lweek -lxml2
+	$(CXX) $(CXXFLAGS) -o $@ $< -L. -lweek
 
 libweather.a: sample.o
 libweather.a: render.o
