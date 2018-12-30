@@ -168,8 +168,8 @@ namespace {
 	    << attr("width",  val.dim.width)
 	    << attr("height", val.dim.height)
 	    << attr("fill", "none")
-	    << attr("stroke", "black")
-	    << attr("stroke-width", 1)
+	    << attr("stroke", "#808080")
+	    << attr("stroke-width", ".5")
 	    << xml::end;
 	return xos;
     }
