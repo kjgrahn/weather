@@ -131,6 +131,9 @@ Curves::Curves(const Week& week, Files& files, std::ostream& err)
 	else if(key=="wind.force.max") {
 	    cur->wind_force_max = {e, b};
 	}
+	else if(key=="wind.direction") {
+	    cur->wind_direction = {e, b};
+	}
     }
 
     for(auto& curve : val) {

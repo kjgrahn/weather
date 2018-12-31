@@ -64,6 +64,7 @@ namespace curves {
 	auto sample = curve.front();
 	orchis::assert_eq(sample.t, 0);
 	orchis::assert_eq(sample.temperature_air, 6.7);
+	orchis::assert_eq(sample.wind_direction,  135);
 	orchis::assert_eq(sample.wind_force,      2.5);
 	orchis::assert_eq(sample.wind_force_max,  3.4);
     }
