@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jörgen Grahn
+ * Copyright (c) 2018, 2019 Jörgen Grahn
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -82,6 +82,26 @@ namespace {
     void nop(void*, const char*, ...) {}
 
     /**
+     * Translate from Trafikverket's "Precipitation.Type"
+     * to none/rain/snow/other.
+     */
+    std::string translate(const std::string& ptype)
+    {
+	static const std::unordered_map<std::string, std::string> map {
+	    {"Duggregn",		"rain"},
+	    {"Hagel",			"other"},
+	    {"Ingen nederb\303\266rd",	"none"},
+	    {"Regn",			"rain"},
+	    {"Sn\303\266",		"snow"},
+	    {"Sn\303\266blandat regn",	"other"},
+	    {"Underkylt regn",		"other"},
+	};
+	auto it = map.find(ptype);
+	if(it != end(map)) return it->second;
+	return "other";
+    }
+
+    /**
      * Parse the /Response/Result XML document to a map
      * Station -> vector of Samples.
      *
@@ -140,6 +160,12 @@ namespace {
 		set("wind.direction",   "Wind/Direction");
 		set("wind.force",       "Wind/Force");
 		set("wind.force.max",   "Wind/ForceMax");
+
+		set("rain.amount",      "Precipitation/Amount");
+		std::string ptype = get("Precipitation/Type");
+		if(ptype.size()) {
+		    sample.data["rain.type"] = translate(ptype);
+		}
 
 		acc[station].push_back(sample);
 	    }

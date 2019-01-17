@@ -46,6 +46,8 @@ std::ostream& operator<< (std::ostream& os, const Sample& val)
     put(os, "wind.direction");
     put(os, "wind.force");
     put(os, "wind.force.max");
+    put(os, "rain.amount");
+    put(os, "rain.type");
 
     return os;
 }

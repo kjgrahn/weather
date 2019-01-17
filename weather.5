@@ -71,10 +71,28 @@ Mean value over ten minutes.
 .BP wind.force.max
 Max wind force during the past 30 minutes.
 .
+.BP rain.amount
+Numeric precipitation.
+Trafikverket does not document the unit \- millimeters of water per hour?
+.\" There's probably a convention for weather stations here.
+.
+.BP rain.type
+One of
+.BR none ,
+.BR rain ,
+.BR snow ,
+.BR other .
+Trafikverket has, like the Eskimos, more types. Their
+.I duggregn
+and
+.I regn
+map to
+.BR rain ;
+hail, sleet and so on map to
+.BR other .
+.
 .BP humidity
 Relative humidity, in percent.
-.
-.\".BP rain
 .
 .
 .SH "EXAMPLE"
