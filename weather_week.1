@@ -3,7 +3,7 @@
 .IP \\fB\\$*
 ..
 .
-.TH weather_week 1 "NOV 2018" Weather "User Manuals"
+.TH weather_week 1 "JAN 2019" Weather "User Manuals"
 .SH "NAME"
 weather_week \- plot weekly weather data
 .
@@ -40,6 +40,14 @@ The mean wind force over ten minutes, and
 (less distinctly) the max wind force over the past half hour,
 if these are available in the input.
 .
+.BP wind\ direction
+Printed as text (in Swedish) during periods with a stable, predominant
+wind direction.
+Note that the direction data from
+.I Trafikverket
+seems to be of questionable quality: I've never seen it record wind from
+the southwest so far.
+.
 .PP
 For other data that's not plotted, see
 .BR weather (5).
@@ -49,6 +57,8 @@ The input files may contain data from several locations, in which case you
 get several overlayed graphs.
 This is useful if you're really interested in another, nearby location:
 you're reminded of the inevitable errors involved.
+.PP
+Wind direction is picked from the first location only.
 .
 .SH "OPTIONS"
 .

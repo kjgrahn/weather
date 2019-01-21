@@ -28,6 +28,7 @@
 
 #include "week.h"
 #include "curves.h"
+#include "direction.h"
 #include "reckon.h"
 #include "groups.h"
 #include "files...h"
@@ -324,9 +325,14 @@ namespace {
  */
 void WeekPlot::plot(const Week& week, Files& files)
 {
+    bool have_dir = false;
+
     for(const auto& curve: Curves{week, files, std::cerr}) {
 	line(xos, temp, curve, &Curves::Sample::temperature_air);
 	line(xos, wind, curve, &Curves::Sample::wind_force_max, "#808080");
 	line(xos, wind, curve, &Curves::Sample::wind_force);
+	if(!have_dir) {
+	    have_dir = direction(xos, wind, curve);
+	}
     }
 }

@@ -28,6 +28,7 @@ libweather.a: socket.o
 
 libweek.a: week.o
 libweek.a: plot.o
+libweek.a: direction.o
 libweek.a: area.o
 libweek.a: reckon.o
 libweek.a: curves.o
