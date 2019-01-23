@@ -64,7 +64,8 @@ struct Scale {
  */
 class Area {
 public:
-    Area(const Scale& scale, const Dimensions& dim);
+    Area(const Scale& scale, const Dimensions& dim,
+	 unsigned offset = 0);
     Area(const Area& above, const Scale& scale, unsigned height);
 
     double xscale(double val) const;
@@ -74,6 +75,14 @@ public:
     const unsigned offset;
     const Dimensions dim;
     const Scale scale;
+};
+
+/**
+ * An area covering the lower part of another area.
+ */
+class SubArea : public Area{
+public:
+    SubArea(const Area& around, const Scale& scale, unsigned height);
 };
 
 #endif

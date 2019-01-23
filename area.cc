@@ -28,10 +28,11 @@
 
 
 /**
- * A plot area at the top of the Plot.
+ * A plot area at (if offset==0) the top of the Plot.
  */
-Area::Area(const Scale& scale, const Dimensions& dim)
-    : offset(0),
+Area::Area(const Scale& scale, const Dimensions& dim,
+	   unsigned offset)
+    : offset(offset),
       dim(dim),
       scale(scale)
 {}
@@ -61,3 +62,8 @@ double Area::yscale(double val) const
 {
     return offset + (scale.max - val) * dim.height / (scale.max - scale.min);
 }
+
+SubArea::SubArea(const Area& around, const Scale& scale, unsigned height)
+    : Area(scale, {around.dim.width, height},
+	   around.offset + around.dim.height - height)
+{}

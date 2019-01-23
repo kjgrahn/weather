@@ -58,8 +58,9 @@ namespace {
     int plot_week(const Week& when, Files& files, std::ostream& os)
     {
 	const Area temperature{{-20, +30}, {700, 200}};
+	const SubArea rain{temperature, {0, 20}, 200 * 3/5};
 	const Area wind{temperature, {0, 20}, 50};
-	WeekPlot plot{os, when, temperature, wind};
+	WeekPlot plot{os, when, temperature, rain, wind};
 	plot.plot(when, files);
 	return 0;
     }

@@ -228,9 +228,11 @@ namespace {
 WeekPlot::WeekPlot(std::ostream& os,
 		   const Week& week,
 		   const Area& temp,
+		   const Area& rain,
 		   const Area& wind)
     : xos{os},
       temp{temp},
+      rain{rain},
       wind{wind}
 {
     xos << xml::elem("svg")

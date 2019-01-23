@@ -62,6 +62,7 @@ public:
     WeekPlot(std::ostream& os,
 	     const Week&,
 	     const Area& temp,
+	     const Area& rain,
 	     const Area& wind);
     ~WeekPlot();
 
@@ -70,6 +71,7 @@ public:
 private:
     xml::ostream xos;
     Area temp;
+    Area rain;
     Area wind;
 };
 
