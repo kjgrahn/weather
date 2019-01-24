@@ -125,6 +125,9 @@ Curves::Curves(const Week& week, Files& files, std::ostream& err)
 	else if(key=="temperature.air") {
 	    cur->temperature_air = {e, b};
 	}
+	else if(key=="rain.amount") {
+	    cur->rain_amount = {e, b};
+	}
 	else if(key=="wind.force") {
 	    cur->wind_force = {e, b};
 	}

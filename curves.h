@@ -50,12 +50,14 @@ public:
 	explicit Sample(double t) : t{t} {};
 	double t;
 	Value temperature_air;
+	Value rain_amount;
 	Value wind_force;
 	Value wind_force_max;
 	Value wind_direction;
 	bool operator< (const Sample& other) const { return t < other.t; }
 
 	bool empty() const { return !temperature_air &&
+				    !rain_amount &&
 				    !wind_direction &&
 				    !wind_force &&
 				    !wind_force_max; }
