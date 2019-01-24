@@ -287,10 +287,15 @@ namespace {
 	return {"d", s};
     }
 
-    void line(xml::ostream& xos, const Area& area,
+    /**
+     * Extract a certain selection from a curve and translate
+     * to plot coordinated.  If all samples are empty, return
+     * an empty curve rather than a flat line.
+     */
+    std::vector<std::pair<double, double>>
+    translate(const Area& area,
 	      const Curves::Curve& curve,
-	      Curves::Selection selection,
-	      const char* color = "black")
+	      Curves::Selection selection)
     {
 	std::vector<std::pair<double, double>> s;
 	bool flatline = true;
@@ -304,7 +309,21 @@ namespace {
 	    if(val!=0) flatline = false;
 	}
 
-	if(!flatline) {
+	if(flatline) s.clear();
+	return s;
+    }
+
+    /**
+     * Render a curve as a colored line, possibly with holes.
+     */
+    void line(xml::ostream& xos, const Area& area,
+	      const Curves::Curve& curve,
+	      Curves::Selection selection,
+	      const char* color = "black")
+    {
+	const auto s = translate(area, curve, selection);
+
+	if(!s.empty()) {
 
 	    const double hour = area.xscale(1.0/7/24);
 
