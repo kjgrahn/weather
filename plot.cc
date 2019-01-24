@@ -338,6 +338,28 @@ namespace {
 		<< xml::end;
 	}
     }
+
+    /**
+     * Render a curve as a semi-transparent blue area above the x
+     * axis, possibly with holes.
+     */
+    void water(xml::ostream& xos, const Area& area,
+	      const Curves::Curve& curve,
+	      Curves::Selection selection)
+    {
+	const auto s = translate(area, curve, selection);
+
+	if(!s.empty()) {
+
+	    const double hour = area.xscale(1.0/7/24);
+
+	    xos << xml::elem("path")
+		<< attr("fill", "#4060c0")
+		<< attr("opacity", ".5")
+		<< line(hour, begin(s), end(s))
+		<< xml::end;
+	}
+    }
 }
 
 /**
@@ -348,6 +370,7 @@ void WeekPlot::plot(const Week& week, Files& files)
 {
     const Curves curves{week, files, std::cerr};
 
+    for(auto& curve: curves) water(xos, rain, curve, &Curves::Sample::rain_amount);
     for(auto& curve: curves) line(xos, temp, curve, &Curves::Sample::temperature_air);
 
     for(auto& curve: curves) if(direction(xos, wind, curve)) break;
