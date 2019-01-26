@@ -29,8 +29,7 @@
 #include "week.h"
 #include "curves.h"
 #include "direction.h"
-#include "reckon.h"
-#include "groups.h"
+#include "path.h"
 #include "files...h"
 
 namespace {
@@ -48,6 +47,7 @@ namespace {
     }
 
     xml::attr attr(const char* name, const char* val) { return {name, val}; }
+    xml::attr attr(const char* name, const std::string& val) { return {name, val}; }
     xml::attr attr(const char* name, int val) { return {name, std::to_string(val)}; }
     xml::attr attr(const char* name, unsigned val) { return {name, std::to_string(val)}; }
     xml::attr attr(const char* name, double val) { return {name, str(val)}; }
@@ -259,37 +259,6 @@ WeekPlot::~WeekPlot()
 namespace {
 
     /**
-     * Format the line as an SVG <path d=...> attribute. The line may
-     * contain holes (if an hour of samples are missing, or if there's
-     * backtracking).
-     *
-     *   M x y L x y x y ...
-     *   M x y L x y x y ...
-     *   ...
-     */
-    template <class Iter>
-    xml::attr line(const double hour, Iter begin, const Iter end)
-    {
-	auto hole = [hour] (std::pair<double, double> a,
-			    std::pair<double, double> b) {
-			auto t0 = a.first;
-			auto t1 = b.first;
-			return t1 <= t0 || t0 + hour < t1;
-		    };
-	std::ostringstream ss;
-
-	while(begin != end) {
-	    auto a = pop_group(begin, end, hole);
-	    if(std::distance(a, begin) < 2) continue;
-
-	    reckon(ss, a, begin) << '\n';
-	}
-	std::string s = ss.str();
-	if(s.size()) s.pop_back();
-	return {"d", s};
-    }
-
-    /**
      * Extract a certain selection from a curve and translate
      * to plot coordinated.  If all samples are empty, return
      * an empty curve rather than a flat line.
@@ -334,7 +303,7 @@ namespace {
 		<< attr("stroke-width", "1")
 		<< attr("stroke-linejoin", "round")
 		<< attr("fill", "none")
-		<< line(hour, begin(s), end(s))
+		<< attr("d", path::line(hour, s))
 		<< xml::end;
 	}
     }
@@ -356,7 +325,7 @@ namespace {
 	    xos << xml::elem("path")
 		<< attr("fill", "#4060c0")
 		<< attr("opacity", ".5")
-		<< line(hour, begin(s), end(s))
+		<< attr("d", path::line(hour, s))
 		<< xml::end;
 	}
     }
