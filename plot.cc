@@ -260,7 +260,7 @@ namespace {
 
     /**
      * Extract a certain selection from a curve and translate
-     * to plot coordinated.  If all samples are empty, return
+     * to plot coordinates.  If all samples are empty, return
      * an empty curve rather than a flat line.
      */
     std::vector<std::pair<double, double>>
@@ -293,19 +293,17 @@ namespace {
 	      const char* color = "black")
     {
 	const auto s = translate(area, curve, selection);
+	if(s.empty()) return;
 
-	if(!s.empty()) {
+	const double hour = area.xscale(1.0/7/24);
 
-	    const double hour = area.xscale(1.0/7/24);
-
-	    xos << xml::elem("path")
-		<< attr("stroke", color)
-		<< attr("stroke-width", "1")
-		<< attr("stroke-linejoin", "round")
-		<< attr("fill", "none")
-		<< attr("d", path::line(hour, s))
-		<< xml::end;
-	}
+	xos << xml::elem("path")
+	    << attr("stroke", color)
+	    << attr("stroke-width", "1")
+	    << attr("stroke-linejoin", "round")
+	    << attr("fill", "none")
+	    << attr("d", path::line(hour, s))
+	    << xml::end;
     }
 
     /**
@@ -317,17 +315,15 @@ namespace {
 	      Curves::Selection selection)
     {
 	const auto s = translate(area, curve, selection);
+	if(s.empty()) return;
 
-	if(!s.empty()) {
+	const double hour = area.xscale(1.0/7/24);
 
-	    const double hour = area.xscale(1.0/7/24);
-
-	    xos << xml::elem("path")
-		<< attr("fill", "#4060c0")
-		<< attr("opacity", ".5")
-		<< attr("d", path::line(hour, s))
-		<< xml::end;
-	}
+	xos << xml::elem("path")
+	    << attr("fill", "#4060c0")
+	    << attr("opacity", ".5")
+	    << attr("d", path::line(hour, s))
+	    << xml::end;
     }
 }
 
