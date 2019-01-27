@@ -317,12 +317,12 @@ namespace {
 	const auto s = translate(area, curve, selection);
 	if(s.empty()) return;
 
-	const double hour = area.xscale(1.0/7/24);
+	const double nil = area.yscale(0);
 
 	xos << xml::elem("path")
 	    << attr("fill", "#4060c0")
 	    << attr("opacity", ".5")
-	    << attr("d", path::line(hour, s))
+	    << attr("d", path::fill(nil, s))
 	    << xml::end;
     }
 }

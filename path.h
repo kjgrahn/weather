@@ -36,6 +36,7 @@
 namespace path {
 
     std::string line(double hour, const std::vector<std::pair<double, double>>& v);
+    std::string fill(double nil, const std::vector<std::pair<double, double>>& v);
 }
 
 #endif

@@ -64,3 +64,87 @@ std::string path::line(double hour, const std::vector<std::pair<double, double>>
     if(s.size()) s.pop_back();
     return s;
 }
+
+namespace {
+
+    using V = std::vector<std::pair<double, double>>;
+
+    /**
+     * Given a subsequence of 'v' with either all rain or no rain,
+     * return something fill-able.
+     *
+     * - No rain: return an empty sequence.
+     *
+     * - Rain: extend with the samples before and after, so a point
+     *   with no rain is present.  If v begins or ends with rain
+     *   (t, r), do it by adding a sample (t, nil).
+     */
+    V shover(V::const_iterator a, V::const_iterator b,
+	     const V& v,
+	     const double nil)
+    {
+	V acc;
+	if(a->second==nil) return acc;
+
+	if(a==begin(v)) {
+	    acc.push_back({a->first, nil});
+	}
+	else {
+	    a--;
+	}
+	if(b==end(v)) {
+	    acc.insert(end(acc), a, b);
+	    b--;
+	    acc.push_back({b->first, nil});
+	}
+	else {
+	    b++;
+	    acc.insert(end(acc), a, b);
+	}
+	return acc;
+    }
+}
+
+/**
+ * Like line(), but for SVG path filling.  These are polygons with the
+ * vertex from the last to the first implied, so we need to start and
+ * end at y=0 or it will look funny.
+ *
+ * This means a period of rain needs to ramp up from the previous
+ * sample, and ramp down similarly.  Plus special handling if the data
+ * begins or ends with rain.  For example:
+ *
+ *    t rain
+ *    ------
+ *    0  5.0  M 0 0  L 0 5
+ *    1  2.0  L 1 2  L 1 0
+ *    2  0.0
+ *    3  4.0  M 2 0  L 3 4
+ *    4  3.0  L 4 3  L 4 0
+ *    end
+ */
+std::string path::fill(double nil, const std::vector<std::pair<double, double>>& v)
+{
+    auto begin = std::begin(v);
+    const auto end = std::end(v);
+
+    // cut at change to or from rain
+    auto change = [nil] (std::pair<double, double> a,
+			std::pair<double, double> b) {
+		      bool adry = a.second == nil;
+		      bool bdry = b.second == nil;
+		      return adry ^ bdry;
+		  };
+    std::ostringstream ss;
+
+    while(begin != end) {
+	auto a = pop_group(begin, end, change);
+	auto sh = shover(a, begin, v, nil);
+	if(sh.empty()) continue;
+
+	reckon(ss, std::begin(sh), std::end(sh)) << '\n';
+    }
+    std::string s = ss.str();
+    if(s.size()) s.pop_back();
+    return s;
+}
