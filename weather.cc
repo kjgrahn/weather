@@ -82,7 +82,7 @@ namespace {
 	    int fd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
 	    if(fd==-1) continue;
 
-	    timeout(fd, 20.0);
+	    timeout(fd, 30.0);
 
 	    int err = connect(fd, p->ai_addr, p->ai_addrlen);
 	    if(!err) return fd;
