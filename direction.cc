@@ -111,7 +111,8 @@ bool direction(xml::ostream& xos, const Area& area,
 	<< attr("font-family", "serif")
 	<< attr("font-weight", "bold")
 	<< attr("font-style", "italic")
-	<< attr("opacity", ".3")
+	<< attr("fill", "#4060c0")
+	<< attr("opacity", ".9")
 	<< attr("font-size", "12")
 	<< attr("text-anchor", "middle")
 	<< attr("y", area.offset + 12 + 6);

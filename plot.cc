@@ -338,8 +338,7 @@ void WeekPlot::plot(const Week& week, Files& files)
     for(auto& curve: curves) water(xos, rain, curve, &Curves::Sample::rain_amount);
     for(auto& curve: curves) line(xos, temp, curve, &Curves::Sample::temperature_air);
 
+    for(auto& curve: curves) line(xos, wind, curve, &Curves::Sample::wind_force_max, "#a0a0c0");
     for(auto& curve: curves) if(direction(xos, wind, curve)) break;
-
-    for(auto& curve: curves) line(xos, wind, curve, &Curves::Sample::wind_force_max, "#808080");
     for(auto& curve: curves) line(xos, wind, curve, &Curves::Sample::wind_force);
 }
