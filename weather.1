@@ -3,23 +3,29 @@
 .IP \\fB\\$*
 ..
 .
-.TH weather 1 "DEC 2018" Weather "User Manuals"
+.TH weather 1 "FEB 2019" Weather "User Manuals"
 .SH "NAME"
 weather \- download Trafikverket weather station data
 .
 .SH "SYNOPSIS"
 .B weather
+.RB [ \-T
+.IR seconds ]
 .B \-k
 .I key
 .I station
 .br
 .B weather
+.RB [ \-T
+.IR seconds ]
 .B \-k
 .I key
 .I station
 .I file
 .br
 .B weather
+.RB [ \-T
+.IR seconds ]
 .B \-k
 .I key
 .B \-C
@@ -70,6 +76,11 @@ You also need to know the station identifier, like
 (a station in M\(:olndal).
 .
 .SH "OPTIONS"
+.
+.BP \-T\ \fIseconds
+Socket timeout, to avoid waiting forever on a non-responsive server.
+Defaults to 60 seconds: in early 2019,
+the server is fairly slow, and regularly needs 20 seconds or more to respond.
 .
 .BP \-k\ \fIkey
 The API key.

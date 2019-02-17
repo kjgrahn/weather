@@ -29,7 +29,7 @@
 #include <fstream>
 #include <vector>
 #include <cstring>
-#include <cassert>
+#include <cstdlib>
 
 #include <getopt.h>
 #include <unistd.h>
@@ -65,7 +65,7 @@ namespace {
     /**
      * Set the socket(7) SO_RCVTIMEO and SO_SNDTIMEO.
      */
-    void timeout(int fd, double seconds)
+    void set_timeout(int fd, double seconds)
     {
 	const timeval tv = tv_of(seconds);
 	setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof tv);
@@ -76,13 +76,13 @@ namespace {
      * From one or more struct addrinfo, try to socket() and
      * connect().  Returns the fd, or sets errno and returns -1.
      */
-    int connect_one(addrinfo* ais)
+    int connect_one(addrinfo* ais, double timeout)
     {
 	for(addrinfo* p=ais; p; p=p->ai_next) {
 	    int fd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
 	    if(fd==-1) continue;
 
-	    timeout(fd, 30.0);
+	    set_timeout(fd, timeout);
 
 	    int err = connect(fd, p->ai_addr, p->ai_addrlen);
 	    if(!err) return fd;
@@ -97,6 +97,7 @@ namespace {
      */
     bool weather(std::unordered_map<std::string, Samples>& acc,
 		 std::ostream& cerr,
+		 double timeout,
 		 const std::string& key,
 		 const std::vector<std::string>& stations)
     {
@@ -110,7 +111,7 @@ namespace {
 	    return false;
 	}
 
-	Socket fd {connect_one(ais)};
+	Socket fd {connect_one(ais, timeout)};
 	freeaddrinfo(ais);
 	if(fd.invalid()) {
 	    cerr << "error: '" << host << "': cannot connect: "
@@ -155,11 +156,12 @@ namespace {
 
     bool weather(std::unordered_map<std::string, Samples>& acc,
 		 std::ostream& cerr,
+		 double timeout,
 		 const std::string& key,
 		 const std::string& station)
     {
 	const std::vector<std::string> stations {station};
-	return weather(acc, cerr, key, stations);
+	return weather(acc, cerr, timeout, key, stations);
     }
 
     /**
@@ -168,11 +170,12 @@ namespace {
      * exit code, and may print error messages to stderr.
      */
     int weather(std::ostream& os, const char* prefix,
+		double timeout,
 		const std::string& key,
 		const std::string& station)
     {
 	std::unordered_map<std::string, Samples> samples;
-	if(!weather(samples, std::cerr, key, station)) return 1;
+	if(!weather(samples, std::cerr, timeout, key, station)) return 1;
 
 	const auto& series = samples[station];
 	if(series.empty()) {
@@ -189,30 +192,32 @@ namespace {
      * Fetch the data for 'station' and either append it to 'file' or
      * print it to stdout.  Return an exit code.
      */
-    int weather(const std::string& key,
+    int weather(double timeout,
+		const std::string& key,
 		const std::string& station,
 		const std::string& file)
     {
-	if(file.empty()) return weather(std::cout, "", key, station);
+	if(file.empty()) return weather(std::cout, "", timeout, key, station);
 	std::ofstream os(file, std::ios::app);
 	if(!os) {
 	    std::cerr << "cannot open '" << file << "' for writing: "
 		      << std::strerror(errno) << '\n';
 	    return 1;
 	}
-	return weather(os, "\n", key, station);
+	return weather(os, "\n", timeout, key, station);
     }
 
     /**
      * Fetch the data for stations a, b, c ... and append it to dir/a,
      * dir/b, dir/c ... Return an exit code.
      */
-    int weather(const std::string& key,
+    int weather(double timeout,
+		const std::string& key,
 		const std::string& dir,
 		const std::vector<std::string>& stations)
     {
 	std::unordered_map<std::string, Samples> samples;
-	if(!weather(samples, std::cerr, key, stations)) return 1;
+	if(!weather(samples, std::cerr, timeout, key, stations)) return 1;
 
 	auto path = [&dir] (const std::string& station) {
 			return dir + "/" + station;
@@ -235,16 +240,16 @@ int main(int argc, char ** argv)
 {
     const std::string prog = argv[0];
     const std::string usage = std::string("usage: ")
-	+ prog + " -k key station\n"
+	+ prog + " [-T seconds] -k key station\n"
 	"       "
-	+ prog + " -k key station file\n"
+	+ prog + " [-T seconds] -k key station file\n"
 	"       "
-	+ prog + " -k key -C dir station ...\n"
+	+ prog + " [-T seconds] -k key -C dir station ...\n"
 	"       "
 	+ prog + " --help\n"
 	"       "
 	+ prog + " --version";
-    const char optstring[] = "k:C:";
+    const char optstring[] = "T:k:C:";
     const struct option long_options[] = {
 	{"help", 0, 0, 'H'},
 	{"version", 0, 0, 'V'},
@@ -254,6 +259,7 @@ int main(int argc, char ** argv)
     std::cin.sync_with_stdio(false);
     std::cout.sync_with_stdio(false);
 
+    double timeout = 60.0;
     std::string key;
     std::string dir;
 
@@ -262,6 +268,15 @@ int main(int argc, char ** argv)
 			    optstring,
 			    &long_options[0], 0)) != -1) {
 	switch(ch) {
+	case 'T':
+	    char* end;
+	    timeout = std::strtod(optarg, &end);
+	    if(*end || timeout < 0) {
+		std::cerr << "error: bad timeout\n"
+			  << usage << '\n';
+		return 1;
+	    }
+	    break;
 	case 'k':
 	    key = optarg;
 	    break;
@@ -311,9 +326,9 @@ int main(int argc, char ** argv)
 	    station = args[0];
 	}
 
-	return weather(key, station, file);
+	return weather(timeout, key, station, file);
     }
     else {
-	return weather(key, dir, args);
+	return weather(timeout, key, dir, args);
     }
 }
