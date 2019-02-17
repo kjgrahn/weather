@@ -35,16 +35,6 @@
 
 namespace {
 
-    namespace xml {
-	using Doc = xmlDoc;
-	using Node = xmlNode;
-
-	namespace xpath {
-	    using Ctx = xmlXPathContext;
-	    using Obj = xmlXPathObject;
-	}
-    }
-
     const char* cast(const xmlChar* s)
     {
 	return reinterpret_cast<const char*>(s);
@@ -55,28 +45,47 @@ namespace {
 	return reinterpret_cast<const xmlChar*>(s);
     }
 
-    xml::xpath::Obj* eval(xml::xpath::Ctx* ctx,
-			  const char* expr)
-    {
-	return xmlXPathEvalExpression(cast(expr), ctx);
+    namespace xml {
+	using Doc = xmlDoc;
+	using Node = xmlNode;
+
+	namespace xpath {
+	    using Ctx = xmlXPathContext;
+
+	    // wrapper for xmlXPathObject
+	    class Obj {
+	    public:
+		Obj(Ctx* ctx, const char* expr)
+		    : val(xmlXPathEvalExpression(cast(expr), ctx))
+		{}
+		Obj(Ctx* ctx, Node* root, const char* expr)
+		    : val(xmlXPathNodeEval(root, cast(expr), ctx))
+		{}
+		~Obj()
+		{
+		    xmlXPathFreeObject(val);
+		}
+
+		Node** begin() const { return val->nodesetval->nodeTab; }
+		Node** end() const { return begin() + val->nodesetval->nodeNr; }
+
+	    private:
+		xmlXPathObject* val;
+	    };
+	}
     }
 
-    xml::xpath::Obj* eval(xml::xpath::Ctx* ctx,
-			  xml::Node* root,
-			  const char* expr)
+    std::vector<xml::Node*> nodes(xml::xpath::Obj& obj)
     {
-	return xmlXPathNodeEval(root, cast(expr), ctx);
+	return {obj.begin(), obj.end()};
     }
 
-    std::vector<xml::Node*> nodes(xml::xpath::Obj* match)
+    const std::string content(xml::Node* node)
     {
-	auto& nsv = *match->nodesetval;
-	return {nsv.nodeTab, nsv.nodeTab + nsv.nodeNr};
-    }
-
-    const char* content(xml::Node* node)
-    {
-	return cast(xmlNodeGetContent(node));
+	auto p = xmlNodeGetContent(node);
+	std::string s = cast(p);
+	xmlFree(p);
+	return s;
     }
 
     void nop(void*, const char*, ...) {}
@@ -122,8 +131,8 @@ namespace {
 
 	xml::xpath::Ctx* ctx = xmlXPathNewContext(doc);
 
-	xml::xpath::Obj* const id_match = eval(ctx, "/RESPONSE/RESULT/WeatherStation/Id");
-	for(xml::Node* id_node : nodes(id_match)) {
+	xml::xpath::Obj id_match {ctx, "/RESPONSE/RESULT/WeatherStation/Id"};
+	for(xml::Node* id_node : id_match) {
 
 	    std::unordered_set<std::string> times;
 	    auto seen = [&times] (const std::string& t) {
@@ -135,12 +144,12 @@ namespace {
 
 	    const std::string station = content(id_node);
 
-	    auto meas_match = eval(ctx, id_node->parent, "./*[MeasureTime]");
-	    for(auto measurement: nodes(meas_match)) {
+	    xml::xpath::Obj meas_match {ctx, id_node->parent, "./*[MeasureTime]"};
+	    for(auto measurement: meas_match) {
 		Sample sample;
 
-		auto get = [ctx, measurement] (const char* expr) {
-			       auto match = eval(ctx, measurement, expr);
+		auto get = [ctx, measurement] (const char* expr) -> std::string {
+			       xml::xpath::Obj match {ctx, measurement, expr};
 			       auto nn = nodes(match);
 			       if (nn.size() != 1) return "";
 			       return content(nn.front());
