@@ -60,13 +60,14 @@ class Files;
 class WeekPlot {
 public:
     WeekPlot(std::ostream& os,
-	     const Week&,
+	     const Week& week,
 	     const Area& temp,
 	     const Area& rain,
 	     const Area& wind);
     ~WeekPlot();
 
-    void plot(const Week& week, Files& files);
+    void plot(const Week& week, bool use_wind_direction,
+	      Files& files);
 
 private:
     xml::ostream xos;

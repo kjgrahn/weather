@@ -55,17 +55,20 @@ namespace {
      * Visualize/plot the week from 'files' to 'os'; return an exit
      * code.
      */
-    int plot_week(const Week& when, Files& files, std::ostream& os)
+    int plot_week(const Week& when, bool use_wind_direction,
+		  Files& files,
+		  std::ostream& os)
     {
 	const Area temperature{{-20, +30}, {700, 200}};
 	const SubArea rain{temperature, {0, 20}, 200 * 3/5};
 	const Area wind{temperature, {0, 20}, 50};
 	WeekPlot plot{os, when, temperature, rain, wind};
-	plot.plot(when, files);
+	plot.plot(when, use_wind_direction, files);
 	return 0;
     }
 
-    int plot_week(const Week& when, Files& files,
+    int plot_week(const Week& when, bool use_wind_direction,
+		  Files& files,
 		  const std::string& image_name)
     {
 	std::ofstream os(image_name);
@@ -74,7 +77,8 @@ namespace {
 		      << std::strerror(errno) << '\n';
 	    return 1;
 	}
-	return plot_week(when, files, os);
+	return plot_week(when, use_wind_direction,
+			 files, os);
     }
 }
 
@@ -83,12 +87,12 @@ int main(int argc, char ** argv)
 {
     const std::string prog = argv[0];
     const std::string usage = std::string("usage: ")
-	+ prog + " [-p N] [-o image-file] file ...\n"
+	+ prog + " [-p N] [-w] [-o image-file] file ...\n"
 	"       "
 	+ prog + " --help\n"
 	"       "
 	+ prog + " --version";
-    const char optstring[] = "p:o:";
+    const char optstring[] = "p:wo:";
     const struct option long_options[] = {
 	{"help", 0, 0, 'H'},
 	{"version", 0, 0, 'V'},
@@ -100,6 +104,7 @@ int main(int argc, char ** argv)
 
     std::string image_name;
     Week when {now()};
+    bool use_wind_direction = false;
 
     int ch;
     while((ch = getopt_long(argc, argv,
@@ -114,6 +119,9 @@ int main(int argc, char ** argv)
 			  << usage << '\n';
 		return 1;
 	    }
+	    break;
+	case 'w':
+	    use_wind_direction = true;
 	    break;
 	case 'o':
 	    image_name = optarg;
@@ -139,8 +147,10 @@ int main(int argc, char ** argv)
     Files files {argv+optind, argv+argc};
 
     if (image_name.size()) {
-	return plot_week(when, files, image_name);
+	return plot_week(when, use_wind_direction,
+			 files, image_name);
     }
 
-    return plot_week(when, files, std::cout);
+    return plot_week(when, use_wind_direction,
+		     files, std::cout);
 }

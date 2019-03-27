@@ -3,7 +3,7 @@
 .IP \\fB\\$*
 ..
 .
-.TH weather_week 1 "JAN 2019" Weather "User Manuals"
+.TH weather_week 1 "MAR 2019" Weather "User Manuals"
 .SH "NAME"
 weather_week \- plot weekly weather data
 .
@@ -11,6 +11,7 @@ weather_week \- plot weekly weather data
 .B weather_week
 .RB [ \-p
 .IR N ]
+.RB [ \-w ]
 .RB [ \-o
 .IR image-file ]
 .I file
@@ -46,13 +47,9 @@ The mean wind force over ten minutes, and
 (less distinctly) the max wind force over the past half hour,
 if these are available in the input.
 .
-.BP wind\ direction
+.BP wind\ direction\ \fP(enabled\ by\ \fB\-w\fP)
 Printed as text (in Swedish) during periods with a stable, prevailing
 wind direction.
-Note that the direction data from
-.I Trafikverket
-seems to be of questionable quality: I've never seen it record wind from
-the southwest so far.
 .
 .PP
 For other data that's not plotted, see
@@ -74,6 +71,17 @@ Render a previous week instead of the current one:
 for the past week,
 .B \-p2
 for two weeks ago, and so on.
+.
+.BP \-w
+Enable printing of wind direction.
+This is not the default, since experience shows many weather stations give
+incorrect readings.
+For example, one station recorded steady wind from the SE during a weekend,
+when the real wind came from the west.
+Worse, I've never seen any station record wind from the southwest \- the
+prevalent wind direction in Sweden.
+.BP
+Incorrect readings are worse than none at all.
 .
 .BP \-o\ \fIimage-file
 The name of the image file to write.  If none is provided,

@@ -331,7 +331,8 @@ namespace {
  * If the files (in weather(5) format) contains data for the
  * particular week, plot it.
  */
-void WeekPlot::plot(const Week& week, Files& files)
+void WeekPlot::plot(const Week& week, bool use_wind_direction,
+		    Files& files)
 {
     const Curves curves{week, files, std::cerr};
 
@@ -339,6 +340,6 @@ void WeekPlot::plot(const Week& week, Files& files)
     for(auto& curve: curves) line(xos, temp, curve, &Curves::Sample::temperature_air);
 
     for(auto& curve: curves) line(xos, wind, curve, &Curves::Sample::wind_force_max, "#a0a0c0");
-    for(auto& curve: curves) if(direction(xos, wind, curve)) break;
+    for(auto& curve: curves) if(use_wind_direction && direction(xos, wind, curve)) break;
     for(auto& curve: curves) line(xos, wind, curve, &Curves::Sample::wind_force);
 }
