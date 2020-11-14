@@ -111,6 +111,14 @@ namespace {
 		    {a.dim.width, z - a.offset},
 		    "#e0d0b0"};
 	}
+
+	Rect summer(const Area& a)
+	{
+	    unsigned z = a.yscale(20);
+	    return {0, a.offset,
+		    {a.dim.width, z},
+		    "#ddb888"};
+	}
     }
 
     /**
@@ -243,6 +251,7 @@ WeekPlot::WeekPlot(std::ostream& os,
     xos << rect::total(temp, wind)
 	<< rect::thaw(temp)
 	<< rect::freeze(temp)
+	<< rect::summer(temp)
 	<< daterange{week, temp}
 	<< days{temp, wind}
 	<< temperature{temp};
