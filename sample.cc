@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, 2019 Jörgen Grahn
+ * Copyright (c) 2018, 2019, 2020 Jörgen Grahn
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -91,36 +91,27 @@ namespace {
     void nop(void*, const char*, ...) {}
 
     /**
-     * Translate from Trafikverket's "Precipitation.Type"
+     * Translate from Trafikverket's rain/snow booleans
      * to none/rain/snow/other.
      */
-    std::string translate(const std::string& ptype)
+    std::string translate(const std::string& rain, const std::string& snow)
     {
-	static const std::unordered_map<std::string, std::string> map {
-	    {"Duggregn",		"rain"},
-	    {"Hagel",			"other"},
-	    {"Ingen nederb\303\266rd",	"none"},
-	    {"Regn",			"rain"},
-	    {"Sn\303\266",		"snow"},
-	    {"Sn\303\266blandat regn",	"other"},
-	    {"Underkylt regn",		"other"},
-	};
-	auto it = map.find(ptype);
-	if(it != end(map)) return it->second;
-	return "other";
+	const unsigned rs = 10 * (rain=="true") + (snow=="true");
+	switch (rs) {
+	case  0: return "none";
+	case  1: return "snow";
+	case 10: return "rain";
+	case 11: return "other";
+	}
     }
 
     /**
-     * Parse the /Response/Result XML document to a map
+     * Parse the /Response/Result XML document containing
+     * <WeatherObservation>s from various stations, to a map
      * Station -> vector of Samples.
      *
-     * /Response/Result contains 0..N <WeatherStation>s, each with a
-     * distinct <Id> and 0..N <Measurement> and <MeasurementHistory>
-     * elements, which are the samples.
-     *
-     * Multiple samples with the same timestamp are discarded. Parse
-     * errors cause an empty map, or a map with absent stations, to be
-     * returned.
+     * Parse errors cause an empty map, or a map with absent stations,
+     * to be returned.
      */
     std::unordered_map<std::string,
 		       Samples> parse(xml::Doc* doc)
@@ -131,53 +122,40 @@ namespace {
 
 	xml::xpath::Ctx* ctx = xmlXPathNewContext(doc);
 
-	xml::xpath::Obj id_match {ctx, "/RESPONSE/RESULT/WeatherStation/Id"};
-	for(xml::Node* id_node : id_match) {
+	xml::xpath::Obj meas_match {ctx, "/RESPONSE/RESULT/WeatherObservation"};
+	for(auto measurement: meas_match) {
+	    Sample sample;
 
-	    std::unordered_set<std::string> times;
-	    auto seen = [&times] (const std::string& t) {
-			    auto it = times.find(t);
-			    if(it!=end(times)) return true;
-			    times.insert(t);
-			    return false;
-			};
+	    auto get = [ctx, measurement] (const char* expr) -> std::string {
+			   xml::xpath::Obj match {ctx, measurement, expr};
+			   auto nn = nodes(match);
+			   if (nn.size() != 1) return "";
+			   return content(nn.front());
+		       };
+	    auto set = [get, &sample] (const char* name,
+				       const char* expr) {
+			   std::string val = get(expr);
+			   if (val.size()) sample.data[name] = val;
+		       };
 
-	    const std::string station = content(id_node);
+	    const std::string station = get("Measurepoint/Id");
 
-	    xml::xpath::Obj meas_match {ctx, id_node->parent, "./*[MeasureTime]"};
-	    for(auto measurement: meas_match) {
-		Sample sample;
+	    sample.time = get("Sample");
 
-		auto get = [ctx, measurement] (const char* expr) -> std::string {
-			       xml::xpath::Obj match {ctx, measurement, expr};
-			       auto nn = nodes(match);
-			       if (nn.size() != 1) return "";
-			       return content(nn.front());
-			   };
-		auto set = [get, &sample] (const char* name,
-					   const char* expr) {
-			       std::string val = get(expr);
-			       if (val.size()) sample.data[name] = val;
-			   };
+	    set("temperature.road", "Surface/Temperature/Value");
+	    set("temperature.air",  "Air/Temperature/Value");
+	    set("humidity",         "Air/RelativeHumidity/Value");
+	    set("wind.direction",   "Wind/Direction/Value");
+	    set("wind.force",       "Wind/Speed/Value");
+	    set("wind.force.max",   "Aggregated30minutes/Wind/SpeedMax/Value");
 
-		sample.time = get("MeasureTime");
-		if(seen(sample.time)) continue;
+	    set("rain.amount",      "Aggregated10minutes/Precipitation/TotalWaterEquivalent/Value");
 
-		set("temperature.road", "Road/Temp");
-		set("temperature.air",  "Air/Temp");
-		set("humidity",         "Air/RelativeHumidity");
-		set("wind.direction",   "Wind/Direction");
-		set("wind.force",       "Wind/Force");
-		set("wind.force.max",   "Wind/ForceMax");
+	    const auto rt = translate(get("Aggregated10minutes/Precipitation/Rain"),
+				      get("Aggregated10minutes/Precipitation/Snow"));
+	    if (rt!="none") sample.data["rain.type"] = rt;
 
-		set("rain.amount",      "Precipitation/Amount");
-		std::string ptype = get("Precipitation/Type");
-		if(ptype.size()) {
-		    sample.data["rain.type"] = translate(ptype);
-		}
-
-		acc[station].push_back(sample);
-	    }
+	    acc[station].push_back(sample);
 	}
 
 	xmlXPathFreeContext(ctx);

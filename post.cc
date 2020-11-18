@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jörgen Grahn
+ * Copyright (c) 2018, 2020 Jörgen Grahn
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,10 +57,13 @@ namespace {
  *
  *     <?xml version='1.0' encoding='utf-8' ?>
  *     <request>
- *       <login authenticationkey='b8bc753a10ad43848f78361c70ac7ad8' />
- *       <query objecttype='WeatherStation' limit='10'>
+ *       <login authenticationkey='...' />
+ *       <query objecttype='WeatherObservation' limit='10'>
  *         <filter>
- *           <eq name='Id' value='SE_STA_VVIS2412' />
+ *           <any>
+ *             <in name='Measurepoint.Id' value='1433, 1434' />
+ *             <gt name='Sample' value='$dateadd(-0.01:00)' />
+ *           </any>
  *         </filter>
  *       </query>
  *     </request>
@@ -70,22 +73,24 @@ namespace {
  */
 std::string post::req(const std::string& host,
 		      const std::string& key,
-		      const std::vector<std::string>& stations)
+		      const std::vector<std::string>& stations,
+		      const Duration& duration)
 {
     std::ostringstream body;
     body << "<?xml version='1.0' encoding='utf-8' ?>\n"
 	 << "<request>\n"
 	 << "  <login authenticationkey='" << key << "' />\n"
-	 << "  <query objecttype='WeatherStation' limit='" << stations.size() << "'>\n"
-	 << "  <filter>\n";
+	 << "  <query objecttype='WeatherObservation' limit='" << stations.size() * duration.samples() << "'>\n"
+	 << "  <filter><and>\n";
     if(stations.size()==1) {
 	const auto& station = stations.front();
-	body << "    <eq name='Id' value='" << station << "' />\n";
+	body << "    <eq name='Measurepoint.Id' value='" << station << "' />\n";
     }
     else {
-	body << "    <in name='Id' value='" << join(stations) << "' />\n";
+	body << "    <in name='Measurepoint.Id' value='" << join(stations) << "' />\n";
     }
-    body << "  </filter>\n"
+    body << "    <gt name='Sample' value='$dateadd(" << duration << ")' />\n"
+	 << "  </and></filter>\n"
 	 << "  </query>\n"
 	 << "</request>";
 
@@ -101,7 +106,7 @@ std::string post::req(const std::string& host,
 	<< "Content-Length: " << bodys.size() << crlf
 	<< "Connection: close" << crlf
 	<< crlf
-	<< body.str();
+	<< bodys;
 
     return req.str();
 }

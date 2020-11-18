@@ -39,6 +39,7 @@
 
 #include "sample.h"
 #include "post.h"
+#include "duration.h"
 #include "socket.h"
 
 
@@ -98,6 +99,7 @@ namespace {
     bool weather(std::unordered_map<std::string, Samples>& acc,
 		 std::ostream& cerr,
 		 double timeout,
+		 const Duration& duration,
 		 const std::string& key,
 		 const std::vector<std::string>& stations)
     {
@@ -119,7 +121,7 @@ namespace {
 	    return false;
 	}
 
-	const auto req = post::req(host, key, stations);
+	const auto req = post::req(host, key, stations, duration);
 
 	if(!fd.write(req.data(), req.size())) {
 	    cerr << "error: request failed: " << fd.error() << '\n';
@@ -157,11 +159,12 @@ namespace {
     bool weather(std::unordered_map<std::string, Samples>& acc,
 		 std::ostream& cerr,
 		 double timeout,
+		 const Duration& duration,
 		 const std::string& key,
 		 const std::string& station)
     {
 	const std::vector<std::string> stations {station};
-	return weather(acc, cerr, timeout, key, stations);
+	return weather(acc, cerr, timeout, duration, key, stations);
     }
 
     /**
@@ -171,11 +174,12 @@ namespace {
      */
     int weather(std::ostream& os, const char* prefix,
 		double timeout,
+		const Duration& duration,
 		const std::string& key,
 		const std::string& station)
     {
 	std::unordered_map<std::string, Samples> samples;
-	if(!weather(samples, std::cerr, timeout, key, station)) return 1;
+	if(!weather(samples, std::cerr, timeout, duration, key, station)) return 1;
 
 	const auto& series = samples[station];
 	if(series.empty()) {
@@ -193,18 +197,19 @@ namespace {
      * print it to stdout.  Return an exit code.
      */
     int weather(double timeout,
+		const Duration& duration,
 		const std::string& key,
 		const std::string& station,
 		const std::string& file)
     {
-	if(file.empty()) return weather(std::cout, "", timeout, key, station);
+	if(file.empty()) return weather(std::cout, "", timeout, duration, key, station);
 	std::ofstream os(file, std::ios::app);
 	if(!os) {
 	    std::cerr << "cannot open '" << file << "' for writing: "
 		      << std::strerror(errno) << '\n';
 	    return 1;
 	}
-	return weather(os, "\n", timeout, key, station);
+	return weather(os, "\n", timeout, duration, key, station);
     }
 
     /**
@@ -212,12 +217,13 @@ namespace {
      * dir/b, dir/c ... Return an exit code.
      */
     int weather(double timeout,
+		const Duration& duration,
 		const std::string& key,
 		const std::string& dir,
 		const std::vector<std::string>& stations)
     {
 	std::unordered_map<std::string, Samples> samples;
-	if(!weather(samples, std::cerr, timeout, key, stations)) return 1;
+	if(!weather(samples, std::cerr, timeout, duration, key, stations)) return 1;
 
 	auto path = [&dir] (const std::string& station) {
 			return dir + "/" + station;
@@ -240,16 +246,16 @@ int main(int argc, char ** argv)
 {
     const std::string prog = argv[0];
     const std::string usage = std::string("usage: ")
-	+ prog + " [-T seconds] -k key station\n"
+	+ prog + " [-T seconds] [-h duration] -k key station\n"
 	"       "
-	+ prog + " [-T seconds] -k key station file\n"
+	+ prog + " [-T seconds] [-h duration] -k key station file\n"
 	"       "
-	+ prog + " [-T seconds] -k key -C dir station ...\n"
+	+ prog + " [-T seconds] [-h duration] -k key -C dir station ...\n"
 	"       "
 	+ prog + " --help\n"
 	"       "
 	+ prog + " --version";
-    const char optstring[] = "T:k:C:";
+    const char optstring[] = "T:h:k:C:";
     const struct option long_options[] = {
 	{"help", 0, 0, 'H'},
 	{"version", 0, 0, 'V'},
@@ -260,6 +266,7 @@ int main(int argc, char ** argv)
     std::cout.sync_with_stdio(false);
 
     double timeout = 60.0;
+    Duration duration {"1h"};
     std::string key;
     std::string dir;
 
@@ -276,6 +283,9 @@ int main(int argc, char ** argv)
 			  << usage << '\n';
 		return 1;
 	    }
+	    break;
+	case 'h':
+	    duration = Duration {optarg};
 	    break;
 	case 'k':
 	    key = optarg;
@@ -299,6 +309,12 @@ int main(int argc, char ** argv)
 	    return 1;
 	    break;
 	}
+    }
+
+    if(!duration.valid()) {
+	std::cerr << "error: bad -h argument\n"
+		  << usage << '\n';
+	return 1;
     }
 
     if(key.empty()) {
@@ -326,9 +342,9 @@ int main(int argc, char ** argv)
 	    station = args[0];
 	}
 
-	return weather(timeout, key, station, file);
+	return weather(timeout, duration, key, station, file);
     }
     else {
-	return weather(timeout, key, dir, args);
+	return weather(timeout, duration, key, dir, args);
     }
 }

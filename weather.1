@@ -3,7 +3,7 @@
 .IP \\fB\\$*
 ..
 .
-.TH weather 1 "FEB 2019" Weather "User Manuals"
+.TH weather 1 "NOV 2020" Weather "User Manuals"
 .SH "NAME"
 weather \- download Trafikverket weather station data
 .
@@ -11,6 +11,8 @@ weather \- download Trafikverket weather station data
 .B weather
 .RB [ \-T
 .IR seconds ]
+.RB [ \-h
+.IR duration ]
 .B \-k
 .I key
 .I station
@@ -18,6 +20,8 @@ weather \- download Trafikverket weather station data
 .B weather
 .RB [ \-T
 .IR seconds ]
+.RB [ \-h
+.IR duration ]
 .B \-k
 .I key
 .I station
@@ -26,6 +30,8 @@ weather \- download Trafikverket weather station data
 .B weather
 .RB [ \-T
 .IR seconds ]
+.RB [ \-h
+.IR duration ]
 .B \-k
 .I key
 .B \-C
@@ -65,15 +71,21 @@ and append to corresponding files
 \&...
 .
 .PP
-The data is one or more samples in time.
-More than one because the response typically contains five samples
-spaced ten minutes apart.
+The data is typically one hour's worth of samples from Trafikverket's
+.B WeatherObservation
+data set, typically (always?) spaced ten minutes apart.
 .PP
-To use it, you need to register with Trafikverket and generate an
+To use
+.BR weather ,
+you need to register with Trafikverket and generate an
 API key.
 You also need to know the station identifier, like
-.I SE_STA_VVIS1433
+.I 1433
 (a station in M\(:olndal).
+.IP
+The stations have longer names, too; 1433 is also known as
+.IR SE_STA_VVIS1433 .
+The short, all-numerical identifier is the one to use here.
 .
 .SH "OPTIONS"
 .
@@ -81,6 +93,19 @@ You also need to know the station identifier, like
 Socket timeout, to avoid waiting forever on a non-responsive server.
 Defaults to 60 seconds: in early 2019,
 the server is fairly slow, and regularly needs 20 seconds or more to respond.
+.
+.BP \-h\ \fIduration
+Download data from the latest
+.I duration
+hours instead of just the latest hour.
+.IR 32 ,
+.I 32h
+and
+.I 1d8h
+all mean the same thing.
+.IP
+You can not download years of data; the event horizon is probably
+measured in days or weeks.
 .
 .BP \-k\ \fIkey
 The API key.
@@ -102,24 +127,8 @@ Non-zero if no correct samples were collected and saved.
 The full response from the server is not preserved, only the data
 which maps to
 .BR weather (5).
-.
-.ig
-  The downloading part is more or less equivalent to:
-
-  <?xml version='1.0' encoding='utf-8' ?>
-  <request>
-    <login authenticationkey='...' />
-    <query objecttype='WeatherStation' limit='2'>
-      <filter>
-        <eq name='Id' value='SE_STA_VVIS1617' />
-      </filter>
-    </query>
-  </request>
-
-  % curl -fL --data-binary @post -H 'Content-Type: application/xml' \
-    http://api.trafikinfo.trafikverket.se/v1.3/data.xml | \
-    xmllint -format -
-..
+Depending on the sensors of the weather station,
+there may be plenty of discarded, more or less interesting, data.
 .
 .SH "AUTHOR"
 .

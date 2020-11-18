@@ -3,72 +3,108 @@
 #include <orchis.h>
 
 namespace {
-    std::string station(const char* name)
+    std::string observation(const char* name)
     {
 	std::string s;
-	s += "    <WeatherStation>"
-	    "      <Active>true</Active>"
-	    "      <CountyNo>14</CountyNo>"
-	    "      <Geometry>"
-	    "        <SWEREF99TM>POINT (416544.83 6447184.97)</SWEREF99TM>"
-	    "        <WGS84>POINT (13.58180046081543 58.158058166503906)</WGS84>"
-	    "      </Geometry>"
-	    "      <IconId>weatherStation</IconId>"
-	    "      <Id>";
+	s += "    <WeatherObservation>"
+	    "      <Sample>2020-11-16T22:40:00</Sample>"
+	    "      <Surface>"
+	    "        <Temperature>"
+	    "          <Origin>measured</Origin>"
+	    "          <SensorNames>PT100</SensorNames>"
+	    "          <Value>7.8</Value>"
+	    "        </Temperature>"
+	    "      </Surface>"
+	    "      <Air>"
+	    "        <Temperature>"
+	    "          <Origin>measured</Origin>"
+	    "          <SensorNames>LAMBRECHT_1</SensorNames>"
+	    "          <Value>8.6</Value>"
+	    "        </Temperature>"
+	    "        <Dewpoint>"
+	    "          <Origin>calculated</Origin>"
+	    "          <SensorNames>LAMBRECHT_1</SensorNames>"
+	    "          <Value>8</Value>"
+	    "        </Dewpoint>"
+	    "        <RelativeHumidity>"
+	    "          <Origin>measured</Origin>"
+	    "          <SensorNames>LAMBRECHT_1</SensorNames>"
+	    "          <Value>95.5</Value>"
+	    "        </RelativeHumidity>"
+	    "      </Air>"
+	    "      <Wind>"
+	    "        <Height>6</Height>"
+	    "        <Speed>"
+	    "          <Origin>measured</Origin>"
+	    "          <SensorNames>WAA15</SensorNames>"
+	    "          <Value>5.3</Value>"
+	    "        </Speed>"
+	    "        <Direction>"
+	    "          <Origin>measured</Origin>"
+	    "          <SensorNames>WAC15</SensorNames>"
+	    "          <Value>225</Value>"
+	    "        </Direction>"
+	    "      </Wind>"
+	    "      <Aggregated10minutes>"
+	    "        <Precipitation>"
+	    "          <Rain>false</Rain>"
+	    "          <Snow>true</Snow>"
+	    "          <RainSum>"
+	    "            <Origin>calculated</Origin>"
+	    "            <SensorNames>OPTICEYE</SensorNames>"
+	    "            <Value>0</Value>"
+	    "          </RainSum>"
+	    "          <SnowSum>"
+	    "            <Solid>"
+	    "              <Origin>calculated</Origin>"
+	    "              <SensorNames>OPTICEYE</SensorNames>"
+	    "              <Value>0</Value>"
+	    "            </Solid>"
+	    "          </SnowSum>"
+	    "          <TotalWaterEquivalent>"
+	    "            <Value>1.3</Value>"
+	    "          </TotalWaterEquivalent>"
+	    "        </Precipitation>"
+	    "      </Aggregated10minutes>"
+	    "      <Aggregated30minutes>"
+	    "        <Wind>"
+	    "          <SpeedMax>"
+	    "            <Value>8.8</Value>"
+	    "          </SpeedMax>"
+	    "        </Wind>"
+	    "        <Precipitation>"
+	    "          <Rain>false</Rain>"
+	    "          <Snow>false</Snow>"
+	    "          <RainSum>"
+	    "            <Origin>calculated</Origin>"
+	    "            <SensorNames>OPTICEYE</SensorNames>"
+	    "            <Value>0</Value>"
+	    "          </RainSum>"
+	    "          <SnowSum>"
+	    "            <Solid>"
+	    "              <Origin>calculated</Origin>"
+	    "              <SensorNames>OPTICEYE</SensorNames>"
+	    "              <Value>0</Value>"
+	    "            </Solid>"
+	    "          </SnowSum>"
+	    "          <TotalWaterEquivalent>"
+	    "            <Value>0</Value>"
+	    "          </TotalWaterEquivalent>"
+	    "        </Precipitation>"
+	    "      </Aggregated30minutes>"
+	    "      <Id>7099641</Id>"
+	    "      <Measurepoint>"
+	    "        <Id>";
 	s += name;
 	s += "</Id>"
-	    "      <Measurement>"
-	    "        <MeasureTime>2018-09-27T00:30:00</MeasureTime>"
-	    "        <Precipitation>"
-	    "          <AmountName>Ingen nederb&#xF6;rd</AmountName>"
-	    "          <Type>Ingen nederb&#xF6;rd</Type>"
-	    "          <TypeIconId>precipitationNoPrecipitation</TypeIconId>"
-	    "        </Precipitation>"
-	    "        <Road>"
-	    "          <Temp>9.3</Temp>"
-	    "          <TempIconId>tempAirRoad</TempIconId>"
-	    "        </Road>"
-	    "        <Air>"
-	    "          <Temp>10.9</Temp>"
-	    "          <TempIconId>tempAirRoad</TempIconId>"
-	    "          <RelativeHumidity>78.8</RelativeHumidity>"
-	    "        </Air>"
-	    "        <Wind>"
-	    "          <Direction>270</Direction>"
-	    "          <DirectionIconId>windW</DirectionIconId>"
-	    "          <DirectionText>V&#xE4;st</DirectionText>"
-	    "          <Force>7.4</Force>"
-	    "          <ForceMax>12.6</ForceMax>"
-	    "        </Wind>"
-	    "      </Measurement>"
-	    "      <MeasurementHistory>"
-	    "        <MeasureTime>2018-09-27T00:20:00</MeasureTime>"
-	    "        <Precipitation>"
-	    "          <AmountName>Ingen nederb&#xF6;rd</AmountName>"
-	    "          <Type>Ingen nederb&#xF6;rd</Type>"
-	    "          <TypeIconId>precipitationNoPrecipitation</TypeIconId>"
-	    "        </Precipitation>"
-	    "        <Road>"
-	    "          <Temp>9.3</Temp>"
-	    "          <TempIconId>tempAirRoad</TempIconId>"
-	    "        </Road>"
-	    "        <Air>"
-	    "          <Temp>11</Temp>"
-	    "          <TempIconId>tempAirRoad</TempIconId>"
-	    "          <RelativeHumidity>78.6</RelativeHumidity>"
-	    "        </Air>"
-	    "        <Wind>"
-	    "          <Direction>270</Direction>"
-	    "          <DirectionIconId>windW</DirectionIconId>"
-	    "          <DirectionText>V&#xE4;st</DirectionText>"
-	    "          <Force>7.7</Force>"
-	    "          <ForceMax>13</ForceMax>"
-	    "        </Wind>"
-	    "      </MeasurementHistory>"
-	    "      <ModifiedTime>2018-09-26T22:35:13.009Z</ModifiedTime>"
-	    "      <Name>Falk&#xF6;ping</Name>"
-	    "      <RoadNumberNumeric>47</RoadNumberNumeric>"
-	    "    </WeatherStation>";
+	    "        <Name>Marka</Name>"
+	    "        <Geometry>"
+	    "          <SWEREF99TM>POINT (409003.997 6447971.304)</SWEREF99TM>"
+	    "          <WGS84>POINT (13.4534 58.16363)</WGS84>"
+	    "        </Geometry>"
+	    "      </Measurepoint>"
+	    "      <ModifiedTime>2020-11-16T21:41:33.956Z</ModifiedTime>"
+	    "    </WeatherObservation>";
 	return s;
     }
 }
@@ -79,29 +115,32 @@ namespace xml {
     {
 	const std::string doc = "<?xml version='1.0'?>"
 	    "<RESPONSE>"
-	    "  <RESULT>" + station("SE_STA_VVIS1617") +
+	    "  <RESULT>" + observation("1617") +
 	    "  </RESULT>"
 	    "</RESPONSE>";
 
 	auto samples = parse(doc);
 	orchis::assert_eq(samples.size(), 1);
 
-	const auto& series = samples["SE_STA_VVIS1617"];
+	const auto& series = samples["1617"];
 
 	{
-	    orchis::assert_eq(series.size(), 2);
+	    orchis::assert_eq(series.size(), 1);
 	    Sample s = series[0];
 	    auto assert_val = [&s] (const char* name, const char* val) {
 				  orchis::assert_eq(s.data[name], val);
 			      };
 
-	    orchis::assert_eq(s.time, "2018-09-27T00:30:00");
-	    assert_val("temperature.road", "9.3");
-	    assert_val("temperature.air",  "10.9");
-	    assert_val("wind.direction",   "270");
-	    assert_val("wind.force",       "7.4");
-	    assert_val("wind.force.max",   "12.6");
-	    assert_val("humidity",         "78.8");
+	    orchis::assert_eq(s.time, "2020-11-16T22:40:00");
+	    assert_val("temperature.road", "7.8");
+	    assert_val("temperature.air",  "8.6");
+	    assert_val("wind.direction",   "225");
+	    assert_val("wind.force",       "5.3");
+	    assert_val("wind.force.max",   "8.8");
+	    assert_val("humidity",         "95.5");
+
+	    assert_val("rain.amount",       "7.8");
+	    assert_val("rain.type",         "snow");
 	}
     }
 
@@ -109,7 +148,7 @@ namespace xml {
     {
 	const std::string doc = "<?xml version='1.0'?>"
 	    "<RESPONSE>"
-	    "  <RESULT>" + station("foo") + station("bar") +station("baz") +
+	    "  <RESULT>" + observation("foo") + observation("bar") + observation("baz") +
 	    "  </RESULT>"
 	    "</RESPONSE>";
 
@@ -122,19 +161,22 @@ namespace xml {
 	for(const auto& val : samples) {
 	    const auto& series = val.second;
 
-	    orchis::assert_eq(series.size(), 2);
+	    orchis::assert_eq(series.size(), 1);
 	    Sample s = series[0];
 	    auto assert_val = [&s] (const char* name, const char* val) {
 				  orchis::assert_eq(s.data[name], val);
 			      };
 
-	    orchis::assert_eq(s.time, "2018-09-27T00:30:00");
-	    assert_val("temperature.road", "9.3");
-	    assert_val("temperature.air",  "10.9");
-	    assert_val("wind.direction",   "270");
-	    assert_val("wind.force",       "7.4");
-	    assert_val("wind.force.max",   "12.6");
-	    assert_val("humidity",         "78.8");
+	    orchis::assert_eq(s.time, "2020-11-16T22:40:00");
+	    assert_val("temperature.road", "7.8");
+	    assert_val("temperature.air",  "8.6");
+	    assert_val("wind.direction",   "225");
+	    assert_val("wind.force",       "5.3");
+	    assert_val("wind.force.max",   "8.8");
+	    assert_val("humidity",         "95.5");
+
+	    assert_val("rain.amount",       "7.8");
+	    assert_val("rain.type",         "snow");
 	}
     }
 
@@ -142,21 +184,7 @@ namespace xml {
     {
 	const std::string doc = "<?xml version='1.0'?>"
 	    "<RESPONSE>"
-	    "  <RESULT>"
-	    "    <WeatherStation>"
-	    "      <Active>true</Active>"
-	    "      <CountyNo>14</CountyNo>"
-	    "      <Geometry>"
-	    "        <SWEREF99TM>POINT (416544.83 6447184.97)</SWEREF99TM>"
-	    "        <WGS84>POINT (13.58180046081543 58.158058166503906)</WGS84>"
-	    "      </Geometry>"
-	    "      <IconId>weatherStation</IconId>"
-	    "      <Id>SE_STA_VVIS1617</Id>"
-	    "      <ModifiedTime>2018-09-26T22:35:13.009Z</ModifiedTime>"
-	    "      <Name>Falk&#xF6;ping</Name>"
-	    "      <RoadNumberNumeric>47</RoadNumberNumeric>"
-	    "    </WeatherStation>"
-	    "  </RESULT>"
+	    "  <RESULT/>"
 	    "</RESPONSE>";
 
 	const auto samples = parse(doc);
@@ -165,19 +193,13 @@ namespace xml {
 
     void truncated(orchis::TC)
     {
-	const std::string doc = "<?xml version='1.0'?>"
+	std::string doc = "<?xml version='1.0'?>"
 	    "<RESPONSE>"
-	    "  <RESULT>"
-	    "    <WeatherStation>"
-	    "      <Active>true</Active>"
-	    "      <CountyNo>14</CountyNo>"
-	    "      <Geometry>"
-	    "        <SWEREF99TM>POINT (416544.83 6447184.97)</SWEREF99TM>"
-	    "        <WGS84>POINT (13.58180046081543 58.158058166503906)</WGS84>"
-	    "      </Geometry>"
-	    "      <IconId>weatherStation</IconId>"
-	    "      <Id>SE_STA_VVIS1617</Id>"
-	    "      <Measurement>";
+	    "  <RESULT>" + observation("foo") + observation("bar") + observation("baz") +
+	    "  </RESULT>"
+	    "</RESPONSE>";
+
+	doc.resize(doc.size() - 10);
 
 	const auto samples = parse(doc);
 	orchis::assert_eq(samples.size(), 0);

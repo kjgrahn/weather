@@ -3,7 +3,7 @@
 .IP \\fB\\$*
 ..
 .
-.TH weather 5 "JAN 2019" Weather "User Manuals"
+.TH weather 5 "NOV 2020" Weather "User Manuals"
 .
 .SH "NAME"
 weather \- weather observations file format
@@ -49,30 +49,53 @@ No fields are mandatory, and the fields may vary between samples.
 .
 .SS "Fields"
 .
+.de TRV
+.br
+\s-2[\\$*]\s0
+..
+.
+For each field, I list what it maps to in Trafikverket's
+.I WeatherObservation
+model.
+There is a very similar mapping to their older
+.IR WeatherStation ,
+too.
+With some other data source, the meaning of any field might be slightly
+different; for example, perhaps one measures max wind speed over 20 minutes.
+Another factor, probably at least as important, is the quality and characteristics
+of the sensors used.
+.
 .BP date 18x
 Sample time, in ISO format. The timezone appears to be Swedish local time
 (and thus ambiguous when daylight savings time ends in fall).
+.TRV "Sample"
 .
 .BP temperature.road
 Road temperature, in degrees centigrade.
+.TRV "Surface/Temperature"
 .
 .BP temperature.air
 Air temperature.
+.TRV "Air/Temperature"
 .
 .BP wind.direction
 Wind direction, in degrees.  For example, 270 means wind
 .I from
 the west, 0 from the north.
+.TRV "Wind/Direction"
 .
 .BP wind.force
 Wind force, in meters/second.
 Mean value over ten minutes.
+.TRV "Wind/Speed"
 .
 .BP wind.force.max
 Max wind force during the past 30 minutes.
+.TRV "Aggregated30minutes/Wind/SpeedMax"
 .
 .BP rain.amount
 Numeric precipitation, in millimeters per hour.
+.TRV "Aggregated10minutes/Precipitation/TotalWaterEquivalent"
 .
 .BP rain.type
 One of
@@ -80,30 +103,30 @@ One of
 .BR rain ,
 .BR snow ,
 .BR other .
-Trafikverket has, like the Eskimos, more types. Their
-.I duggregn
-and
-.I regn
-map to
-.BR rain ;
-hail, sleet and so on map to
-.BR other .
+Trafikverket currently flags rain and snow independently;
+.B other
+tends to mean a mix of both, or perhaps a change from one to the other
+during a ten-minute period.
+.TRV "Aggregated10minutes/Precipitation/{Rain,Snow}"
 .
 .BP humidity
 Relative humidity, in percent.
+.TRV "Air/RelativeHumidity"
 .
 .
 .SH "EXAMPLE"
 .IP
 .ft CW
 .nf
-date: 2018-09-27T00:30:01
-temperature.air : 10.9
-temperature.road:  9.3
-wind.force      :  7.4
-wind.force.max  : 12.6
-wind.direction  :  270
-humidity        : 78.8
+date: 2020-11-17T11:50:00
+temperature.road:   7.8
+temperature.air :   7.8
+humidity        :  93.8
+wind.direction  :   180
+wind.force      :   4.9
+wind.force.max  :   7.9
+rain.amount     :   0.2
+rain.type       :  rain
 .fi
 .
 .SH "AUTHOR"

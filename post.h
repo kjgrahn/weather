@@ -31,10 +31,13 @@
 #include <string>
 #include <vector>
 
+#include "duration.h"
+
 namespace post {
     std::string req(const std::string& host,
 		    const std::string& key,
-		    const std::vector<std::string>& stations);
+		    const std::vector<std::string>& stations,
+		    const Duration& duration);
 
     /**
      * A parsed response to the post: the status line and the
