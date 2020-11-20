@@ -23,6 +23,7 @@ weather_week: weather_week.o libweek.a
 libweather.a: sample.o
 libweather.a: render.o
 libweather.a: post.o
+libweather.a: duration.o
 libweather.a: socket.o
 	$(AR) -r $@ $^
 
@@ -53,6 +54,7 @@ test/test.cc: test/libtest.a
 	orchis -o $@ $^
 
 test/libtest.a: test/test_xml.o
+test/libtest.a: test/test_duration.o
 test/libtest.a: test/test_week.o
 test/libtest.a: test/test_curves.o
 test/libtest.a: test/test_value.o
