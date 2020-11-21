@@ -28,6 +28,8 @@
 
 #include <unordered_set>
 #include <iostream>
+#include <cstdlib>
+#include <cstdio>
 
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
@@ -91,6 +93,20 @@ namespace {
     void nop(void*, const char*, ...) {}
 
     /**
+     * Multiplication, but with strings and "" instead of zero. For
+     * translating from mm rain in 10 minutes to mm/h.
+     */
+    std::string multiply(const std::string& s, unsigned k)
+    {
+	const double n = std::strtod(s.c_str(), nullptr);
+	char buf[10];
+	std::snprintf(buf, sizeof buf, "%.1f", n * k);
+	const std::string res = buf;
+	if (res=="0.0") return "";
+	return res;
+    }
+
+    /**
      * Translate from Trafikverket's rain/snow booleans
      * to none/rain/snow/other.
      */
@@ -149,7 +165,9 @@ namespace {
 	    set("wind.force",       "Wind/Speed/Value");
 	    set("wind.force.max",   "Aggregated30minutes/Wind/SpeedMax/Value");
 
-	    set("rain.amount",      "Aggregated10minutes/Precipitation/TotalWaterEquivalent/Value");
+	    const auto water = get("Aggregated10minutes/Precipitation/TotalWaterEquivalent/Value");
+	    const auto mm = multiply(water, 6);
+	    if (mm.size()) sample.data["rain.amount"] = mm;
 
 	    const auto rt = translate(get("Aggregated10minutes/Precipitation/Rain"),
 				      get("Aggregated10minutes/Precipitation/Snow"));
