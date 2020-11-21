@@ -298,8 +298,8 @@ int main(int argc, char ** argv)
 	    return 0;
 	    break;
 	case 'V':
-	    std::cout << "Weather 2.8\n"
-		      << "Copyright (c) 2018, 2019 Jörgen Grahn\n";
+	    std::cout << "Weather 3.0\n"
+		      << "Copyright (c) 2018, 2019, 2020 Jörgen Grahn\n";
 	    return 0;
 	    break;
 	case ':':
