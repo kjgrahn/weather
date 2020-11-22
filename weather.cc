@@ -136,7 +136,8 @@ namespace {
 
 	const post::Response resp {s};
 	if(!resp.success()) {
-	    cerr << "error: " << resp.status_line << '\n';
+	    cerr << "error: " << resp.status_line << '\n'
+		 << resp.body << '\n';
 	    return false;
 	}
 
