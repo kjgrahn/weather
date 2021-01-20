@@ -339,6 +339,7 @@ int main(int argc, char ** argv)
 	    return 1;
 	case 2:
 	    file = args[1];
+	    /* fallthrough */
 	case 1:
 	    station = args[0];
 	}
