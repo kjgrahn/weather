@@ -149,9 +149,12 @@ namespace {
 			   return content(nn.front());
 		       };
 	    auto set = [get, &sample] (const char* name,
-				       const char* expr) {
+				       const char* expr,
+				       const char* forbidden = nullptr) {
 			   std::string val = get(expr);
-			   if (val.size()) sample.data[name] = val;
+			   if (val.empty()) return;
+			   if (forbidden && val==forbidden) return;
+			   sample.data[name] = val;
 		       };
 
 	    const std::string station = get("Measurepoint/Id");
@@ -162,8 +165,8 @@ namespace {
 	    set("temperature.air",  "Air/Temperature/Value");
 	    set("humidity",         "Air/RelativeHumidity/Value");
 	    set("wind.direction",   "Wind/Direction/Value");
-	    set("wind.force",       "Wind/Speed/Value");
-	    set("wind.force.max",   "Aggregated30minutes/Wind/SpeedMax/Value");
+	    set("wind.force",       "Wind/Speed/Value", "100");
+	    set("wind.force.max",   "Aggregated30minutes/Wind/SpeedMax/Value", "100");
 
 	    const auto water = get("Aggregated10minutes/Precipitation/TotalWaterEquivalent/Value");
 	    const auto mm = multiply(water, 6);

@@ -6,7 +6,7 @@
 SHELL=/bin/bash
 INSTALLBASE=/usr/local
 
-CXXFLAGS=-W -Wall -pedantic -std=c++11 -g -Os
+CXXFLAGS=-W -Wall -pedantic -std=c++14 -g -Os
 CPPFLAGS=-I/usr/include/libxml2
 
 .PHONY: all
