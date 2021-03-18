@@ -80,7 +80,7 @@ public:
 /**
  * An area covering the lower part of another area.
  */
-class SubArea : public Area{
+class SubArea : public Area {
 public:
     SubArea(const Area& around, const Scale& scale, unsigned height);
 };
