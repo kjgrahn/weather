@@ -7,18 +7,18 @@ namespace post {
     void single_station(orchis::TC)
     {
 	const char ref[] =
-	    "POST /v1.3/data.xml HTTP/1.1\r\n"
+	    "POST /v2/data.xml HTTP/1.1\r\n"
 	    "Host: example.org\r\n"
 	    "User-Agent: weather/3.1\r\n"
 	    "Accept: */*\r\n"
 	    "Content-Type: application/xml\r\n"
-	    "Content-Length: 295\r\n"
+	    "Content-Length: 313\r\n"
 	    "Connection: close\r\n"
 	    "\r\n"
 	    "<?xml version='1.0' encoding='utf-8' ?>\n"
 	    "<request>\n"
 	    "  <login authenticationkey='xyzzy' />\n"
-	    "  <query objecttype='WeatherObservation' limit='48'>\n"
+	    "  <query objecttype='WeatherObservation' schemaversion='2' limit='48'>\n"
 	    "  <filter><and>\n"
 	    "    <eq name='Measurepoint.Id' value='4711' />\n"
 	    "    <gt name='Sample' value='$dateadd(-0.08:00)' />\n"

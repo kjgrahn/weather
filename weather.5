@@ -66,7 +66,13 @@ Another factor, probably at least as important, is the quality and characteristi
 of the sensors used.
 .
 .BP date 18x
-Sample time, in ISO format. The timezone appears to be Swedish local time
+Sample time, in ISO format, with offset from GMT.
+For example,
+.IR "2022-11-27T\:23:05:03.001\:+01:00" .
+The milliseconds are, of course, nonsense.
+.IP
+In older data, perhaps before schema version 2,
+the timezone appears to be implied Swedish local time
 (and thus ambiguous when daylight savings time ends in fall).
 .TRV "Sample"
 .
@@ -118,7 +124,7 @@ Relative humidity, in percent.
 .IP
 .ft CW
 .nf
-date: 2020-11-17T11:50:00
+date: 2020-11-17T11:50:00+01:00
 temperature.road:   7.8
 temperature.air :   7.8
 humidity        :  93.8

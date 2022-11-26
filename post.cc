@@ -80,7 +80,9 @@ std::string post::req(const std::string& host,
     body << "<?xml version='1.0' encoding='utf-8' ?>\n"
 	 << "<request>\n"
 	 << "  <login authenticationkey='" << key << "' />\n"
-	 << "  <query objecttype='WeatherObservation' limit='" << stations.size() * duration.samples() << "'>\n"
+	 << "  <query objecttype='WeatherObservation'"
+	 << " schemaversion='2'"
+	 << " limit='" << stations.size() * duration.samples() << "'>\n"
 	 << "  <filter><and>\n";
     if(stations.size()==1) {
 	const auto& station = stations.front();
@@ -98,7 +100,7 @@ std::string post::req(const std::string& host,
     const char crlf[] = "\r\n";
 
     std::ostringstream req;
-    req << "POST /v1.3/data.xml HTTP/1.1" << crlf
+    req << "POST /v2/data.xml HTTP/1.1" << crlf
 	<< "Host: " << host << crlf
 	<< "User-Agent: weather/3.1" << crlf
 	<< "Accept: */*" << crlf
