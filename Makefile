@@ -62,6 +62,7 @@ test/libtest.a: test/test_groups.o
 test/libtest.a: test/test_xmlwrite.o
 test/libtest.a: test/test_files.o
 test/libtest.a: test/test_spike.o
+test/libtest.a: test/test_post.o
 	$(AR) -r $@ $^
 
 test/test_%.o: CPPFLAGS+=-I.
