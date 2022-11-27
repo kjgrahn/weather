@@ -9,7 +9,7 @@ namespace post {
 	const char ref[] =
 	    "POST /v2/data.xml HTTP/1.1\r\n"
 	    "Host: example.org\r\n"
-	    "User-Agent: weather/3.1\r\n"
+	    "User-Agent: weather/4.0\r\n"
 	    "Accept: */*\r\n"
 	    "Content-Type: application/xml\r\n"
 	    "Content-Length: 313\r\n"
