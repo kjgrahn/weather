@@ -14,8 +14,8 @@ all: weather
 all: weather_week
 all: test/test
 
-weather: weather.o libweather.a
-	$(CXX) $(CXXFLAGS) -o $@ $< -L. -lweather -lxml2
+weather: weather.o tlsclient.o libweather.a
+	$(CXX) $(CXXFLAGS) -o $@ $< tlsclient.o -L. -lweather -lxml2 -ltls
 
 weather_week: weather_week.o libweek.a
 	$(CXX) $(CXXFLAGS) -o $@ $< -L. -lweek
