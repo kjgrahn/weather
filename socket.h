@@ -47,8 +47,9 @@ public:
 
     std::string read();
 
-private:
     const int fd;
+
+private:
     int err;
 };
 

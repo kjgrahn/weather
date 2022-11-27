@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jörgen Grahn
+ * Copyright (c) 2018, 2022 Jörgen Grahn
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,7 @@
 #include "post.h"
 #include "duration.h"
 #include "socket.h"
+#include "tlsclient.h"
 
 
 namespace {
@@ -107,7 +108,7 @@ namespace {
 
 	const addrinfo hints = tcp_client();
 	addrinfo* ais;
-	const int err = getaddrinfo(host.c_str(), "http", &hints, &ais);
+	const int err = getaddrinfo(host.c_str(), "https", &hints, &ais);
 	if(err) {
 	    cerr << "error: '" << host << "': " << gai_strerror(err) << '\n';
 	    return false;
@@ -121,16 +122,23 @@ namespace {
 	    return false;
 	}
 
-	const auto req = post::req(host, key, stations, duration);
-
-	if(!fd.write(req.data(), req.size())) {
-	    cerr << "error: request failed: " << fd.error() << '\n';
+	TLSClient client {fd.fd, host};
+	if (!client) {
+	    cerr << "error: cannot connect: "
+		 << client.error() << '\n';
 	    return false;
 	}
 
-	auto s = fd.read();
+	const auto req = post::req(host, key, stations, duration);
+
+	if(!client.write(req.data(), req.size())) {
+	    cerr << "error: " << client.error() << '\n';
+	    return false;
+	}
+
+	auto s = client.read();
 	if(s.empty()) {
-	    cerr << "error: read failure: " << fd.error() << '\n';
+	    cerr << "error: read failure: " << client.error() << '\n';
 	    return false;
 	}
 
