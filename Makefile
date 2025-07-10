@@ -41,7 +41,7 @@ libweek.a: files...o
 
 # tests
 
-.PHONY:  checkv
+.PHONY: check checkv
 check: test/test
 	./test/test
 checkv: test/test
@@ -78,7 +78,7 @@ install: weather weather.1 weather.5
 .PHONY: tags TAGS
 tags: TAGS
 TAGS:
-	etags *.{h,cc}
+	ctags -eR . --extra=q
 
 .PHONY: clean
 clean:
