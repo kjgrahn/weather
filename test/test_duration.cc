@@ -7,13 +7,12 @@ namespace duration {
 
     using orchis::TC;
 
-    void assert_valid(const Duration& d, const char* s, unsigned n)
+    void assert_valid(const Duration& d, const char* s, unsigned)
     {
 	orchis::assert_true(d.valid());
 	std::ostringstream ss;
 	ss << d;
 	orchis::assert_eq(ss.str(), s);
-	orchis::assert_eq(d.samples(), n);
     }
 
     void assert_invalid(const Duration& d)

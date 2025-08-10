@@ -47,7 +47,6 @@ class Duration {
 public:
     explicit Duration(const std::string& s);
     bool valid() const { return h; }
-    unsigned samples() const { return 6 * h; }
 
     std::ostream& put(std::ostream& os) const;
 

@@ -58,7 +58,7 @@ namespace {
  *     <?xml version='1.0' encoding='utf-8' ?>
  *     <request>
  *       <login authenticationkey='...' />
- *       <query objecttype='WeatherObservation' limit='10'>
+ *       <query objecttype='WeatherObservation' schemaversion='2'>
  *         <filter>
  *           <any>
  *             <in name='Measurepoint.Id' value='1433, 1434' />
@@ -81,8 +81,7 @@ std::string post::req(const std::string& host,
 	 << "<request>\n"
 	 << "  <login authenticationkey='" << key << "' />\n"
 	 << "  <query objecttype='WeatherObservation'"
-	 << " schemaversion='2'"
-	 << " limit='" << stations.size() * duration.samples() << "'>\n"
+	 << " schemaversion='2'>\n"
 	 << "  <filter><and>\n";
     if(stations.size()==1) {
 	const auto& station = stations.front();

@@ -3,7 +3,7 @@
 .IP \\fB\\$*
 ..
 .
-.TH weather_week 1 "MAR 2019" Weather "User Manuals"
+.TH weather_week 1 "AUG 2025" Weather "User Manuals"
 .SH "NAME"
 weather_week \- plot weekly weather data
 .
@@ -57,6 +57,12 @@ wind direction.
 .PP
 For other data that's not plotted, see
 .BR weather (5).
+.
+.PP
+Input samples are typically spaced five or ten minutes apart, but
+outages at Trafikverket are common. Therefore, if there's a hole larger
+than one hour in the sequence of samples, it's shown as a hole in the
+plot.
 .
 .PP
 The input files may contain data from several locations, in which case you
